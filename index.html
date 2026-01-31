@@ -193,114 +193,127 @@
       </div>
     </section>
 
-    <!-- Rules + calculator -->
-    <section id="rules" class="mt-8 md:mt-10 grid lg:grid-cols-[1.6fr_.9fr] gap-6 items-start">
+    <!-- Rules + Balance (united block) -->
+    <section id="rules" class="mt-8 md:mt-10">
       <div class="glass glow rounded-3xl p-6 md:p-8 reveal">
-        <h2 class="text-xl md:text-2xl font-bold">📌 ПРАВИЛА НАЧИСЛЕНИЯ БАЛЛОВ</h2>
-        <p class="mt-2 text-slate-600">Баллы начисляются за клипы. Ниже — правила, мини‑калькулятор и витрина товаров.</p>
+        <div class="grid lg:grid-cols-[1fr_320px] gap-8 items-start">
+          <!-- Rules left side -->
+          <div>
+            <h2 class="text-xl md:text-2xl font-bold">📌 ПРАВИЛА НАЧИСЛЕНИЯ БАЛЛОВ</h2>
+            <p class="mt-2 text-slate-600">Баллы начисляются за клипы. Ниже — правила, мини‑калькулятор и витрина товаров.</p>
 
-        <div class="mt-4 space-y-2 text-slate-800 leading-relaxed">
-          <p>🎬 За каждый клип → <b>+50 баллов</b>.</p>
-          <p>✨ Если клипов больше одного → к каждому следующему добавляем <b>+3%</b> от суммы предыдущего клипа.</p>
+            <div class="mt-4 space-y-2 text-slate-800 leading-relaxed">
+              <p>🎬 За каждый клип → <b>+50 баллов</b>.</p>
+              <p>✨ Если клипов больше одного → к каждому следующему добавляем <b>+3%</b> от суммы предыдущего клипа.</p>
 
-          <div class="mt-3 glass rounded-2xl p-4 border border-white/60">
-            <div class="font-semibold mb-2">Примеры:</div>
-            <ul class="space-y-1 text-sm text-slate-700">
-              <li>1 клип = 50 🙂</li>
-              <li>2 клипа = 50 + (50 × 1,03) = 103 🙂</li>
-              <li>3 клипа = 50 + 51,5 + 52,5 = 154 🙂</li>
-            </ul>
+              <div class="mt-3 glass rounded-2xl p-4 border border-white/60">
+                <div class="font-semibold mb-2">Примеры:</div>
+                <ul class="space-y-1 text-sm text-slate-700">
+                  <li>1 клип = 50 🙂</li>
+                  <li>2 клипа = 50 + (50 × 1,03) = 103 🙂</li>
+                  <li>3 клипа = 50 + 51,5 + 52,5 = 154 🙂</li>
+                </ul>
+              </div>
+
+              <p class="mt-3">⚠️ Важно: если клип не о чем — баллы не начисляются!</p>
+              <p>💡 Совет: Чем больше клипов в стриме — тем выгоднее!</p>
+
+              <div class="mt-4 glass rounded-2xl p-4 border border-white/60">
+                <p class="text-slate-800">
+                  🎮 Проверить свои баллы вы можете на твиче, написать в чат <b>!Баланс</b>
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-5 flex flex-wrap gap-2">
+              <button id="openCalc"
+                      class="px-4 py-2 rounded-xl bg-white/75 hover:bg-white transition border border-white/70 font-medium">
+                Открыть калькулятор баллов
+              </button>
+
+              <button id="copyBalanceCmd"
+                      class="px-4 py-2 rounded-xl glass hover:bg-white/60 transition border border-white/60 font-medium">
+                Скопировать команду !Баланс
+              </button>
+            </div>
           </div>
 
-          <p class="mt-3">⚠️ Важно: если клип не о чем — баллы не начисляются!</p>
-          <p>💡 Совет: Чем больше клипов в стриме — тем выгоднее!</p>
+          <!-- Balance right side -->
+          <aside class="glass glow rounded-3xl p-5 border border-white/60">
+            <div class="flex items-center justify-between gap-3 mb-4">
+              <h3 class="text-lg font-bold">Баланс</h3>
+              <a id="adminFormBtn" 
+                 href="https://docs.google.com/forms/d/e/1FAIpQLSeTxeos-5hZ6Y8BBgpHkAzjadR0cgah5-UlnYe79xY_3u7Zmg/viewform"
+                 target="_blank"
+                 class="hidden px-3 py-1 rounded-lg bg-blue-500/80 hover:bg-blue-600 transition border border-blue-400/60 text-white text-sm font-medium">
+                📋 Форма
+              </a>
+            </div>
+            
+            <!-- Auth status block -->
+            <div id="authStatusBlock" class="glass rounded-2xl p-4 border border-white/60 mb-3">
+              <div class="text-xs text-slate-600">Статус</div>
+              <div id="authStatus" class="font-semibold truncate">Не авторизован(а)</div>
+              <div id="authSub" class="text-xs text-slate-600 mt-1">
+                Войди через Twitch, чтобы проверять баланс и оформлять заказ.
+              </div>
+            </div>
 
-          <div class="mt-4 glass rounded-2xl p-4 border border-white/60">
-            <p class="text-slate-800">
-              🎮 Проверить свои баллы вы можете на твиче, написать в чат <b>!Баланс</b>
-            </p>
-          </div>
-        </div>
+            <!-- Login button -->
+            <div id="loginButtonBlock" class="mb-3">
+              <button id="btnLogin"
+                      class="w-full px-4 py-2 rounded-xl font-medium glass hover:bg-white/60 transition border border-white/60">
+                Войти через Twitch
+              </button>
+            </div>
 
-        <div class="mt-5 flex flex-wrap gap-2">
-          <button id="openCalc"
-                  class="px-4 py-2 rounded-xl bg-white/75 hover:bg-white transition border border-white/70 font-medium">
-            Открыть калькулятор баллов
-          </button>
+            <!-- Balance info (hidden until logged in) -->
+            <div id="balanceInfoBlock" class="hidden space-y-3">
+              <!-- Nick with logout -->
+              <div class="glass rounded-2xl p-4 border border-white/60">
+                <div class="flex items-center justify-between gap-2">
+                  <div>
+                    <div class="text-xs text-slate-600">Ник (Twitch)</div>
+                    <div id="displayName" class="font-semibold truncate">—</div>
+                  </div>
+                  <button id="btnLogout"
+                          class="px-2 py-1 rounded-lg text-xs font-medium bg-white/70 hover:bg-white/90 transition border border-white/60">
+                    Выход
+                  </button>
+                </div>
+              </div>
 
-          <button id="copyBalanceCmd"
-                  class="px-4 py-2 rounded-xl glass hover:bg-white/60 transition border border-white/60 font-medium">
-            Скопировать команду !Баланс
-          </button>
+              <!-- Balance -->
+              <div class="glass rounded-2xl p-4 border border-white/60">
+                <div class="text-xs text-slate-600">Баллы</div>
+                <div id="balanceValue" class="text-2xl font-extrabold tracking-tight">—</div>
+
+                <div id="balanceHint" class="mt-2 text-xs text-slate-600">
+                  Нажми «Обновить», чтобы подтянуть баланс из таблицы.
+                </div>
+              </div>
+
+              <!-- Buttons -->
+              <div class="flex flex-wrap gap-2">
+                <button id="btnRefreshBalance"
+                        class="flex-1 px-4 py-2 rounded-xl bg-white/75 hover:bg-white transition border border-white/70 font-medium">
+                  Обновить
+                </button>
+
+                <button id="btnCopyBalance"
+                        class="flex-1 px-4 py-2 rounded-xl glass hover:bg-white/60 transition border border-white/60 font-medium">
+                  Скопировать !Баланс
+                </button>
+              </div>
+
+              <!-- Error -->
+              <div id="balanceError" class="hidden glass rounded-2xl p-4 border border-rose-200/70 bg-rose-50/60 text-sm text-rose-700">
+                Ошибка
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
-
-      <!-- Balance card -->
-      <aside class="glass glow rounded-3xl p-6 md:p-8 reveal">
-        <div class="flex items-center justify-between gap-3">
-          <h3 class="text-lg font-bold">Баланс</h3>
-          <a id="adminFormBtn" 
-             href="https://docs.google.com/forms/d/e/1FAIpQLSeTxeos-5hZ6Y8BBgpHkAzjadR0cgah5-UlnYe79xY_3u7Zmg/viewform"
-             target="_blank"
-             class="hidden px-3 py-1 rounded-lg bg-blue-500/80 hover:bg-blue-600 transition border border-blue-400/60 text-white text-sm font-medium">
-            📋 Форма
-          </a>
-        </div>
-        
-        <!-- Auth status - hidden when logged in -->
-        <div id="authStatusBlock" class="mt-3 glass rounded-2xl p-4 border border-white/60">
-          <div class="text-xs text-slate-600">Статус</div>
-          <div id="authStatus" class="font-semibold truncate">Не авторизован(а)</div>
-          <div id="authSub" class="text-xs text-slate-600 mt-1">
-            Войди через Twitch, чтобы проверять баланс и оформлять заказ.
-          </div>
-        </div>
-
-        <!-- Login/Logout buttons -->
-        <div class="mt-3 flex flex-wrap gap-2">
-          <button id="btnLogin"
-                  class="flex-1 px-4 py-2 rounded-xl font-medium glass hover:bg-white/60 transition border border-white/60">
-            Войти через Twitch
-          </button>
-        </div>
-
-        <!-- Balance info -->
-        <div class="mt-4 glass rounded-2xl p-4 border border-white/60">
-          <div class="flex items-center justify-between gap-2 mb-2">
-            <div>
-              <div class="text-xs text-slate-600">Ник (Twitch)</div>
-              <div id="displayName" class="font-semibold truncate">—</div>
-            </div>
-            <button id="btnLogout"
-                    class="hidden px-2 py-1 rounded-lg text-xs font-medium bg-white/70 hover:bg-white/90 transition border border-white/60">
-              Выход
-            </button>
-          </div>
-
-          <div class="mt-4 text-xs text-slate-600">Баллы</div>
-          <div id="balanceValue" class="text-2xl font-extrabold tracking-tight">—</div>
-
-          <div id="balanceHint" class="mt-2 text-xs text-slate-600">
-            Нажми «Обновить», чтобы подтянуть баланс из таблицы.
-          </div>
-        </div>
-
-        <div class="mt-4 flex flex-wrap gap-2">
-          <button id="btnRefreshBalance"
-                  class="px-4 py-2 rounded-xl bg-white/75 hover:bg-white transition border border-white/70 font-medium">
-            Обновить
-          </button>
-
-          <button id="btnCopyBalance"
-                  class="px-4 py-2 rounded-xl glass hover:bg-white/60 transition border border-white/60 font-medium">
-            Скопировать !Баланс
-          </button>
-        </div>
-
-        <div id="balanceError" class="hidden mt-4 glass rounded-2xl p-4 border border-rose-200/70 bg-rose-50/60 text-sm text-rose-700">
-          Ошибка
-        </div>
-      </aside>
     </section>
 
     <!-- Products -->
@@ -877,19 +890,19 @@
 
   function updateAuthUI(session){
     const authStatusBlock = $("#authStatusBlock");
+    const loginButtonBlock = $("#loginButtonBlock");
+    const balanceInfoBlock = $("#balanceInfoBlock");
     
     if (session?.token){
-      btnLogin?.classList.add("hidden");
-      btnLogout?.classList.remove("hidden");
       const dn = session.displayName || "—";
-      authStatus.textContent = `Авторизован(а) как ${dn}`;
-      authSub.textContent = "Можно проверять баланс и оформлять заказ.";
       displayNameEl.textContent = dn;
       
-      // Скрываем блок "Статус" при авторизации
-      if (authStatusBlock) {
-        authStatusBlock.classList.add("hidden");
-      }
+      // Скрываем статус и кнопку входа
+      authStatusBlock?.classList.add("hidden");
+      loginButtonBlock?.classList.add("hidden");
+      
+      // Показываем информацию о балансе
+      balanceInfoBlock?.classList.remove("hidden");
       
       // Показываем кнопку "Форма" только для администратора
       const adminFormBtn = $("#adminFormBtn");
@@ -899,17 +912,15 @@
         adminFormBtn.classList.add("hidden");
       }
     } else {
-      btnLogin?.classList.remove("hidden");
-      btnLogout?.classList.add("hidden");
-      authStatus.textContent = "Не авторизован(а)";
-      authSub.textContent = "Войди через Twitch, чтобы проверять баланс и оформлять заказ.";
+      // Показываем статус и кнопку входа
+      authStatusBlock?.classList.remove("hidden");
+      loginButtonBlock?.classList.remove("hidden");
+      
+      // Скрываем информацию о балансе
+      balanceInfoBlock?.classList.add("hidden");
+      
       displayNameEl.textContent = "—";
       $("#balanceValue").textContent = "—";
-      
-      // Показываем блок "Статус" когда не авторизован
-      if (authStatusBlock) {
-        authStatusBlock.classList.remove("hidden");
-      }
       
       // Скрываем кнопку "Форма"
       const adminFormBtn = $("#adminFormBtn");
