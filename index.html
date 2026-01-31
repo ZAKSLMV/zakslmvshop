@@ -464,22 +464,6 @@
           <li>2) Добавь комментарий (если нужно) и нажми «Заказать».</li>
           <li>3) Я получу заказ в Telegram и отвечу тебе.</li>
         </ol>
-
-        <div class="mt-5 flex flex-wrap gap-2">
-          <a id="telegramLink"
-             href="#"
-             class="px-4 py-2 rounded-xl bg-white/75 hover:bg-white transition border border-white/70 font-medium">
-            Открыть Telegram
-          </a>
-          <button id="copyTelegram"
-                  class="px-4 py-2 rounded-xl glass hover:bg-white/60 transition border border-white/60 font-medium">
-            Скопировать Telegram ссылку
-          </button>
-        </div>
-
-        <div class="mt-5 glass rounded-2xl p-4 border border-white/60 text-sm text-slate-700">
-          Для мобильных тяжёлые эффекты отключены — всё должно быть быстрым и плавным.
-        </div>
       </div>
 
       <div id="order" class="glass glow rounded-3xl p-6 md:p-8 reveal">
@@ -787,16 +771,6 @@
   /* --------- Копирование !Баланс --------- */
   $("#copyBalanceCmd")?.addEventListener("click", () => copyText("!Баланс"));
   $("#btnCopyBalance")?.addEventListener("click", () => copyText("!Баланс"));
-
-  /* --------- Telegram link + copy --------- */
-  const telegramLink = $("#telegramLink");
-  const copyTelegramBtn = $("#copyTelegram");
-  function applyTelegramLink(){
-    telegramLink.href = CONFIG.TELEGRAM_LINK;
-  }
-  applyTelegramLink();
-
-  copyTelegramBtn?.addEventListener("click", () => copyText(CONFIG.TELEGRAM_LINK));
 
   /* =========================
      Twitch OAuth 2.0 (Implicit Flow)
@@ -1110,10 +1084,6 @@
   });
   const sleep = window.sleep || ((ms) => new Promise(r => setTimeout(r, ms)));
 
-  /* ---------- Telegram link ---------- */
-  const telegramLink = $("#telegramLink");
-  if (telegramLink) telegramLink.href = API.TELEGRAM_LINK;
-
   /* =========================
      Падающие лепестки (desktop only)
      ========================= */
@@ -1321,17 +1291,10 @@
     const dateStr = now.toLocaleDateString("ru-RU");
     const timeStr = now.toLocaleTimeString("ru-RU");
 
-    const message = `🛍️ <b>НОВЫЙ ЗАКАЗ</b>
-
-👤 <b>Ник:</b> ${payload.display_name}
-📦 <b>Товар:</b> ${payload.product_title}
-💰 <b>Стоимость:</b> ${payload.product_cost} 🙂
-${payload.comment ? `💬 <b>Комментарий:</b> ${payload.comment}` : ""}
-
-📅 <b>Время:</b> ${dateStr} ${timeStr}`;
+    const message = `🛍️ <b>НОВЫЙ ЗАКАЗ</b>\n\n👤 <b>Ник:</b> ${payload.display_name}\n📦 <b>Товар:</b> ${payload.product_title}\n💰 <b>Стоимость:</b> ${payload.product_cost} 🙂\n${payload.comment ? `💬 <b>Комментарий:</b> ${payload.comment}` : ""}\n\n📅 <b>Время:</b> ${dateStr} ${timeStr}`;
 
     try {
-      const res = await fetch(`https://api.telegram.org/bot${API.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      await fetch(`https://api.telegram.org/bot${API.TELEGRAM_BOT_TOKEN}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -1340,10 +1303,6 @@ ${payload.comment ? `💬 <b>Комментарий:</b> ${payload.comment}` : "
           parse_mode: "HTML"
         })
       });
-
-      if (!res.ok) {
-        console.error("Telegram API error:", res.status);
-      }
     } catch (err) {
       console.error("Failed to send Telegram message:", err);
     }
@@ -1351,18 +1310,10 @@ ${payload.comment ? `💬 <b>Комментарий:</b> ${payload.comment}` : "
 
   async function postOrder(payload){
     if (!API.ORDER_API_URL || API.ORDER_API_URL.includes("YOUR_")){
-      const msg =
-`Заказ с сайта:
-Ник: ${payload.display_name}
-Товар: ${payload.product_title} (${payload.product_cost})
-Комментарий: ${payload.comment || "—"}`;
-
+      const msg = `Заказ с сайта:\nНик: ${payload.display_name}\nТовар: ${payload.product_title} (${payload.product_cost})\nКомментарий: ${payload.comment || "—"}`;
       await copyText(msg);
       showInline("warn", "Сервер заказа не настроен. Я скопировал(а) текст заказа — вставь его в ЛС Telegram.");
-      
-      // Всё равно отправляем в Telegram бота
       await sendTelegramMessage(payload);
-      
       return { ok: true, fallback: true };
     }
 
@@ -1377,9 +1328,7 @@ ${payload.comment ? `💬 <b>Комментарий:</b> ${payload.comment}` : "
       throw new Error(data?.error || ("HTTP " + res.status));
     }
     
-    // Отправляем в Telegram
     await sendTelegramMessage(payload);
-    
     return data;
   }
 
@@ -1475,10 +1424,6 @@ ${payload.comment ? `💬 <b>Комментарий:</b> ${payload.comment}` : "
 
       showInline("ok", "Заказ успешно отправлен! Получил твой заказ 😊");
       toast("Заказ отправлен", "ok");
-
-      if (API.TELEGRAM_LINK && telegramLink){
-        telegramLink.href = API.TELEGRAM_LINK;
-      }
     }catch(err){
       setProgress(false);
       setOrderEnabled(true);
