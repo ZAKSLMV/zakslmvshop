@@ -262,24 +262,20 @@
                   class="flex-1 px-4 py-2 rounded-xl font-medium glass hover:bg-white/60 transition border border-white/60">
             Войти через Twitch
           </button>
-
-          <button id="btnLogout"
-                  class="hidden flex-1 px-4 py-2 rounded-xl font-medium bg-white/70 hover:bg-white/90 transition border border-white/60">
-            Выйти
-          </button>
-        </div>
-
-        <div class="mt-2 flex items-center justify-end">
-          <label class="flex items-center gap-2 select-none">
-            <input id="rememberMe" type="checkbox" class="accent-slate-900" />
-            <span class="text-sm text-slate-700">Запомнить вход</span>
-          </label>
         </div>
 
         <!-- Balance info -->
         <div class="mt-4 glass rounded-2xl p-4 border border-white/60">
-          <div class="text-xs text-slate-600">Ник (Twitch)</div>
-          <div id="displayName" class="font-semibold truncate">—</div>
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <div>
+              <div class="text-xs text-slate-600">Ник (Twitch)</div>
+              <div id="displayName" class="font-semibold truncate">—</div>
+            </div>
+            <button id="btnLogout"
+                    class="hidden px-2 py-1 rounded-lg text-xs font-medium bg-white/70 hover:bg-white/90 transition border border-white/60">
+              Выход
+            </button>
+          </div>
 
           <div class="mt-4 text-xs text-slate-600">Баллы</div>
           <div id="balanceValue" class="text-2xl font-extrabold tracking-tight">—</div>
