@@ -247,8 +247,8 @@
           </a>
         </div>
         
-        <!-- Auth status -->
-        <div class="mt-3 glass rounded-2xl p-4 border border-white/60">
+        <!-- Auth status - hidden when logged in -->
+        <div id="authStatusBlock" class="mt-3 glass rounded-2xl p-4 border border-white/60">
           <div class="text-xs text-slate-600">Статус</div>
           <div id="authStatus" class="font-semibold truncate">Не авторизован(а)</div>
           <div id="authSub" class="text-xs text-slate-600 mt-1">
@@ -880,6 +880,8 @@
   }
 
   function updateAuthUI(session){
+    const authStatusBlock = $("#authStatusBlock");
+    
     if (session?.token){
       btnLogin?.classList.add("hidden");
       btnLogout?.classList.remove("hidden");
@@ -887,6 +889,11 @@
       authStatus.textContent = `Авторизован(а) как ${dn}`;
       authSub.textContent = "Можно проверять баланс и оформлять заказ.";
       displayNameEl.textContent = dn;
+      
+      // Скрываем блок "Статус" при авторизации
+      if (authStatusBlock) {
+        authStatusBlock.classList.add("hidden");
+      }
       
       // Показываем кнопку "Форма" только для администратора
       const adminFormBtn = $("#adminFormBtn");
@@ -902,6 +909,11 @@
       authSub.textContent = "Войди через Twitch, чтобы проверять баланс и оформлять заказ.";
       displayNameEl.textContent = "—";
       $("#balanceValue").textContent = "—";
+      
+      // Показываем блок "Статус" когда не авторизован
+      if (authStatusBlock) {
+        authStatusBlock.classList.remove("hidden");
+      }
       
       // Скрываем кнопку "Форма"
       const adminFormBtn = $("#adminFormBtn");
