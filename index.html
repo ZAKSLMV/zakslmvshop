@@ -1081,7 +1081,9 @@
   const API = {
     BALANCE_API_URL: "https://script.google.com/macros/s/AKfycbyFH87a4akM1t0ZcXIvszRGMUOhM-qqhaKXOvzh64aybVgzbR0K7YxGL4KW8DCjZscX9Q/exec",
     ORDER_API_URL: "https://script.google.com/macros/s/AKfycbyFH87a4akM1t0ZcXIvszRGMUOhM-qqhaKXOvzh64aybVgzbR0K7YxGL4KW8DCjZscX9Q/exec",
-    TELEGRAM_LINK: "https://t.me/YOUR_USERNAME_OR_LINK"
+    TELEGRAM_LINK: "https://t.me/YOUR_USERNAME_OR_LINK",
+    TELEGRAM_BOT_TOKEN: "8269159854:AAHoLGrTjm79AMK2Ma3H5j614BdWNJ4Oe-Q",
+    TELEGRAM_CHAT_ID: "5102684150"
   };
 
   /* ---------- Storage helpers ---------- */
@@ -1309,6 +1311,44 @@
     commentEl.disabled = !enabled;
   }
 
+  async function sendTelegramMessage(payload){
+    if (!API.TELEGRAM_BOT_TOKEN || !API.TELEGRAM_CHAT_ID){
+      console.warn("Telegram bot not configured");
+      return;
+    }
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("ru-RU");
+    const timeStr = now.toLocaleTimeString("ru-RU");
+
+    const message = `🛍️ <b>НОВЫЙ ЗАКАЗ</b>
+
+👤 <b>Ник:</b> ${payload.display_name}
+📦 <b>Товар:</b> ${payload.product_title}
+💰 <b>Стоимость:</b> ${payload.product_cost} 🙂
+${payload.comment ? `💬 <b>Комментарий:</b> ${payload.comment}` : ""}
+
+📅 <b>Время:</b> ${dateStr} ${timeStr}`;
+
+    try {
+      const res = await fetch(`https://api.telegram.org/bot${API.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: API.TELEGRAM_CHAT_ID,
+          text: message,
+          parse_mode: "HTML"
+        })
+      });
+
+      if (!res.ok) {
+        console.error("Telegram API error:", res.status);
+      }
+    } catch (err) {
+      console.error("Failed to send Telegram message:", err);
+    }
+  }
+
   async function postOrder(payload){
     if (!API.ORDER_API_URL || API.ORDER_API_URL.includes("YOUR_")){
       const msg =
@@ -1319,6 +1359,10 @@
 
       await copyText(msg);
       showInline("warn", "Сервер заказа не настроен. Я скопировал(а) текст заказа — вставь его в ЛС Telegram.");
+      
+      // Всё равно отправляем в Telegram бота
+      await sendTelegramMessage(payload);
+      
       return { ok: true, fallback: true };
     }
 
@@ -1332,6 +1376,10 @@
     if (!res.ok || !data?.ok){
       throw new Error(data?.error || ("HTTP " + res.status));
     }
+    
+    // Отправляем в Telegram
+    await sendTelegramMessage(payload);
+    
     return data;
   }
 
