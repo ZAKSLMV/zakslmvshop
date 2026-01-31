@@ -610,7 +610,7 @@
   }
 
   function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
-  window.sleep = sleep; // expose for Part 3
+  window.sleep = sleep;
 
   /* --------- Toast --------- */
   const toastHost = $("#toastHost");
@@ -633,7 +633,7 @@
       setTimeout(() => el.remove(), 220);
     }, ttl);
   }
-  window.toast = toast; // expose for Part 3
+  window.toast = toast;
 
   /* --------- Clipboard --------- */
   async function copyText(text){
@@ -660,7 +660,7 @@
       }
     }
   }
-  window.copyText = copyText; // expose for Part 3
+  window.copyText = copyText;
 
   /* --------- Telegram warning --------- */
   const tgWarning = $("#tgWarning");
@@ -812,12 +812,6 @@
     from.removeItem(STORAGE_KEYS.displayName);
   }
 
-  const rememberMe = $("#rememberMe");
-  if (rememberMe){
-    rememberMe.checked = localStorage.getItem(STORAGE_KEYS.remember) === "1";
-    rememberMe.addEventListener("change", () => setRemember(rememberMe.checked));
-  }
-
   function parseHashParams(){
     const hash = window.location.hash.startsWith("#") ? window.location.hash.slice(1) : "";
     const params = new URLSearchParams(hash);
@@ -844,7 +838,7 @@
     if (Date.now() >= expiresAt) return null;
     return { token, expiresAt, displayName };
   }
-  window.getSession = getSession; // expose for Part 3
+  window.getSession = getSession;
 
   function saveSession({ token, expiresAt, displayName }){
     const storage = getStorage();
@@ -871,14 +865,11 @@
       const dn = session.displayName || "—";
       displayNameEl.textContent = dn;
       
-      // Скрываем статус и кнопку входа
       authStatusBlock?.classList.add("hidden");
       loginButtonBlock?.classList.add("hidden");
       
-      // Показываем информацию о балансе
       balanceInfoBlock?.classList.remove("hidden");
       
-      // Показываем кнопку "Форма" только для администратора
       const adminFormBtn = $("#adminFormBtn");
       if (adminFormBtn && dn.toLowerCase() === "zakslmv") {
         adminFormBtn.classList.remove("hidden");
@@ -886,17 +877,14 @@
         adminFormBtn.classList.add("hidden");
       }
     } else {
-      // Показываем статус и кнопку входа
       authStatusBlock?.classList.remove("hidden");
       loginButtonBlock?.classList.remove("hidden");
       
-      // Скрываем информацию о балансе
       balanceInfoBlock?.classList.add("hidden");
       
       displayNameEl.textContent = "—";
       $("#balanceValue").textContent = "—";
       
-      // Скрываем кнопку "Форма"
       const adminFormBtn = $("#adminFormBtn");
       if (adminFormBtn) {
         adminFormBtn.classList.add("hidden");
@@ -1055,7 +1043,6 @@
   const API = {
     BALANCE_API_URL: "https://script.google.com/macros/s/AKfycbyFH87a4akM1t0ZcXIvszRGMUOhM-qqhaKXOvzh64aybVgzbR0K7YxGL4KW8DCjZscX9Q/exec",
     ORDER_API_URL: "https://script.google.com/macros/s/AKfycbyFH87a4akM1t0ZcXIvszRGMUOhM-qqhaKXOvzh64aybVgzbR0K7YxGL4KW8DCjZscX9Q/exec",
-    TELEGRAM_LINK: "https://t.me/YOUR_USERNAME_OR_LINK",
     TELEGRAM_BOT_TOKEN: "8269159854:AAHoLGrTjm79AMK2Ma3H5j614BdWNJ4Oe-Q",
     TELEGRAM_CHAT_ID: "5102684150"
   };
@@ -1169,7 +1156,7 @@
   function setBalanceUI({ ok, balance, error }){
     if (!balanceValue) return;
     if (ok){
-      lastBalance = Number(balance);
+      lastBalance = Number(balance || 0);
       balanceValue.textContent = String(lastBalance);
       balanceHint.textContent = "Баланс обновлён.";
       balanceError.classList.add("hidden");
@@ -1215,7 +1202,7 @@
 
       if (data.display_name && $("#displayName")) $("#displayName").textContent = data.display_name;
 
-      setBalanceUI({ ok:true, balance: data.balance });
+      setBalanceUI({ ok:true, balance: data.balance || 0 });
       toast("Баланс обновлён", "ok");
     }catch(e){
       setBalanceUI({ ok:false, error:"Нет доступа к API или ошибка сети." });
