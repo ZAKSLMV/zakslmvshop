@@ -1304,22 +1304,15 @@
       return { ok: true, fallback: true };
     }
 
-    let data;
-    try {
-      const res = await fetch(API.ORDER_API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+    const res = await fetch(API.ORDER_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
 
-      data = await res.json().catch(() => ({}));
-      if (!res.ok || !data?.ok){
-        throw new Error(data?.error || ("HTTP " + res.status));
-      }
-    } catch (err) {
-      console.warn("Order API request failed, falling back to Telegram only:", err);
-      await sendTelegramMessage(payload);
-      return { ok: true, fallback: true };
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data?.ok){
+      throw new Error(data?.error || ("HTTP " + res.status));
     }
     
     await sendTelegramMessage(payload);
@@ -1353,7 +1346,7 @@
 
     const product = getSelectedProduct();
     if (!product){
-      showInline("err", "Сначала выбери товар в разделе «Товары».);
+      showInline("err", "Сначала выбери товар в разделе «Товары».");
       toast("Выбери товар", "warn");
       return;
     }
@@ -1422,9 +1415,9 @@
       setProgress(false);
       setOrderEnabled(true);
 
-      const message = "Что-то пошло не так при отправке заказа. Возможно, нет связи с сервером или временная ошибка сервиса.";
-      showInline("err", `${message}\nПопробуй ещё раз чуть позже.`);
-      toast("Ошибка при оформлении заказа", "err", 2600);
+      const message = (err && err.message) ? err.message : "Неизвестная ошибка";
+      showInline("err", `✖ Ошибка: ${message}\nПопробуй снова.`);
+      toast("Ошибка при оформлении", "err", 2400);
     }
   });
 
