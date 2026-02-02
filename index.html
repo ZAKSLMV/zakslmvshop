@@ -1,1641 +1,1562 @@
 <!DOCTYPE html>
-<html lang="ru" class="scroll-smooth">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="color-scheme" content="light" />
-    <title>Магазинчик Ями — оформление заказов</title>
-    <meta name="description" content="Магазинчик Ями — заказывай контент за баллы с клипов. Правила начисления, калькулятор баллов и товары." />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Магазинчик Ями — оформление заказов</title>
+  <meta name="description" content="Магазинчик Ями — заказывай контент за баллы с клипов. Правила начисления, калькулятор баллов и товары." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --glass-bg: rgba(255, 255, 255, .55);
+      --glass-brd: rgba(255, 255, 255, .45);
+      --shadow: 0 18px 55px rgba(18, 28, 55, .14);
+      --ring: 0 0 0 1px rgba(255, 255, 255, .55), 0 0 0 6px rgba(255, 255, 255, .18);
+    }
     
-    <script src="https://cdn.tailwindcss.com"></script>
+    body {
+      background: radial-gradient(1200px 800px at 10% 10%, rgba(100, 150, 220, .30), transparent 60%), 
+                  radial-gradient(1000px 700px at 90% 20%, rgba(80, 140, 200, .25), transparent 55%), 
+                  radial-gradient(900px 700px at 40% 100%, rgba(100, 160, 200, .20), transparent 55%), 
+                  linear-gradient(135deg, #1a2f4f 0%, #2d4a7a 50%, #1f3a5f 100%);
+      min-height: 100vh;
+      color: #1e293b;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
     
-    <style>
-        :root {
-            --glass-bg: rgba(255,255,255,.55);
-            --glass-brd: rgba(255,255,255,.45);
-            --shadow: 0 18px 55px rgba(18, 28, 55, .14);
-            --ring: 0 0 0 1px rgba(255,255,255,.55), 0 0 0 6px rgba(255,255,255,.18);
+    .glass {
+      background: var(--glass-bg);
+      border: 1.5px solid var(--glass-brd);
+      box-shadow: var(--shadow), 0 0 30px rgba(100, 200, 255, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    
+    .glass:hover {
+      box-shadow: var(--shadow), 0 0 40px rgba(100, 200, 255, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+    }
+    
+    .glow {
+      position: relative;
+    }
+    
+    .glow:before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      border-radius: inherit;
+      pointer-events: none;
+      background: linear-gradient(135deg, rgba(100, 200, 255, 0.4), rgba(150, 180, 255, 0.2), rgba(100, 200, 255, 0.3));
+      filter: blur(15px);
+      opacity: 0.6;
+      z-index: -1;
+    }
+    
+    .floaty {
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(22px);
+      opacity: .35;
+      mix-blend-mode: multiply;
+      pointer-events: none;
+    }
+    
+    .reveal {
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    
+    .reveal.is-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .modal-backdrop {
+      background: rgba(20, 30, 55, .35);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    
+    .toast {
+      animation: toastIn .22s ease-out;
+    }
+    
+    @keyframes toastIn {
+      from {
+        transform: translateY(12px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    #petals {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    
+    @media (prefers-reduced-motion: reduce) {
+      .reveal {
+        transition: none !important;
+      }
+    }
+    
+    .yammy-check {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, .38);
+      background: rgba(255, 255, 255, .20);
+      display: inline-grid;
+      place-content: center;
+      cursor: pointer;
+      flex: 0 0 18px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06);
+    }
+    
+    .yammy-check:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, .18);
+    }
+    
+    .yammy-check::after {
+      content: "";
+      width: 9px;
+      height: 5px;
+      border-left: 2px solid #1e293b;
+      border-bottom: 2px solid #1e293b;
+      transform: rotate(-45deg);
+      opacity: 0;
+      margin-top: -1px;
+    }
+    
+    .yammy-check:checked::after {
+      opacity: 1;
+    }
+  </style>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['ui-sans-serif', 'system-ui', 'Segoe UI', 'Roboto', 'Arial']
+          }
         }
-
-        html, body {
-            height: 100%;
-        }
-
-        body {
-            overflow-x: hidden;
-            background: radial-gradient(900px 600px at 18% 14%, rgba(255,255,255,.10), transparent 62%),
-                        radial-gradient(800px 520px at 82% 22%, rgba(255,255,255,.08), transparent 60%),
-                        linear-gradient(135deg, #f2b6da 0%, #9ad0f0 52%, #cbbcff 100%);
-            color: rgba(255,255,255,.90);
-            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-        }
-
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background: linear-gradient(180deg, rgba(6,10,28,.56), rgba(6,10,28,.40));
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .compact h1 {
-            font-size: clamp(1.55rem, 3.6vw, 2.6rem) !important;
-        }
-
-        .compact h2 {
-            font-size: clamp(1.25rem, 2.6vw, 1.85rem) !important;
-        }
-
-        .compact h3 {
-            font-size: 1.05rem !important;
-        }
-
-        .noise {
-            pointer-events: none;
-            position: fixed;
-            inset: 0;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="2" stitchTiles="stitch"/></filter><rect width="200" height="200" filter="url(%23n)" opacity="0.14"/></svg>');
-            mix-blend-mode: soft-light;
-            opacity: .14;
-            z-index: 2;
-        }
-
-        #stars {
-            position: fixed;
-            inset: 0;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        .star {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            opacity: .0;
-            filter: drop-shadow(0 0 6px rgba(231,191,43,.22));
-            transform: translate3d(0,0,0) rotate(0deg);
-            animation: starFall linear infinite;
-        }
-
-        .star::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,255,255,0) 52%), conic-gradient(from 0deg, #f6e7a6, #e7bf2b, #c9961d, #e7bf2b, #f6e7a6);
-            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-            border-radius: 2px;
-        }
-
-        @keyframes starFall {
-            0% {
-                transform: translate3d(var(--x,0), -15vh, 0) rotate(0deg) scale(var(--s,1));
-                opacity: 0;
-            }
-            10% { opacity: var(--o,.85); }
-            90% { opacity: var(--o,.85); }
-            100% {
-                transform: translate3d(calc(var(--x,0) + var(--drift,0px)), 115vh, 0) rotate(260deg) scale(var(--s,1));
-                opacity: 0;
-            }
-        }
-
-        #clouds {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .cloud {
-            position: absolute;
-            width: clamp(140px, 22vw, 300px);
-            height: clamp(52px, 9vw, 110px);
-            background: rgba(255,255,255,.12);
-            border: 1px solid rgba(255,255,255,.10);
-            border-radius: 999px;
-            filter: blur(.25px);
-            box-shadow: 0 14px 40px rgba(10,20,80,.06);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            opacity: .55;
-            animation: cloudMove linear infinite;
-        }
-
-        .cloud:before, .cloud:after {
-            content: "";
-            position: absolute;
-            background: rgba(255,255,255,.23);
-            border: 1px solid rgba(255,255,255,.14);
-            border-radius: 999px;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-        }
-
-        .cloud:before {
-            width: 60%;
-            height: 85%;
-            left: 8%;
-            top: -35%;
-        }
-
-        .cloud:after {
-            width: 55%;
-            height: 75%;
-            right: 10%;
-            top: -25%;
-        }
-
-        @keyframes cloudMove {
-            from { transform: translate3d(-120%, 0, 0); }
-            to { transform: translate3d(120vw, 0, 0); }
-        }
-
-        .glass {
-            background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.08));
-            border: 1px solid rgba(255,255,255,.18);
-            box-shadow: 0 12px 34px rgba(10,20,80,.14);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-        }
-
-        .glow {
-            position: relative;
-            isolation: isolate;
-        }
-
-        .glow:before {
-            content: "";
-            position: absolute;
-            inset: -1px;
-            border-radius: 1.25rem;
-            background: conic-gradient(from 200deg, rgba(255,255,255,.0), rgba(255,255,255,.22), rgba(255,255,255,.0), rgba(255,255,255,.16), rgba(255,255,255,.0));
-            filter: blur(12px);
-            opacity: .40;
-            z-index: -1;
-            animation: halo 10s linear infinite;
-        }
-
-        @keyframes halo {
-            to { transform: rotate(360deg); }
-        }
-
-        .floaty {
-            animation: floaty 6s ease-in-out infinite;
-        }
-
-        @keyframes floaty {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .btn {
-            background: linear-gradient(135deg, rgba(255,255,255,.25), rgba(255,255,255,.08));
-            border: 1px solid rgba(255,255,255,.25);
-            box-shadow: 0 12px 30px rgba(10,20,80,.18);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 18px 44px rgba(10,20,80,.22);
-        }
-
-        .btn:active {
-            transform: translateY(0px) scale(.99);
-        }
-
-        .reveal {
-            opacity: 0;
-            transform: translateY(14px);
-            transition: opacity .7s ease, transform .7s ease;
-        }
-
-        .reveal.in {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .no-io .reveal {
-            opacity: 1 !important;
-            transform: none !important;
-            transition: none !important;
-        }
-
-        @media (max-width: 1024px) {
-            .reveal {
-                opacity: 1 !important;
-                transform: none !important;
-                transition: none !important;
-            }
-        }
-
-        @media (max-width: 640px) {
-            .noise { display: none !important; }
-            #stars { display: none !important; }
-            #clouds { display: none !important; }
-            .glow:before { display: none !important; }
-            .glass { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
-            .btn { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
-            body::before { background: linear-gradient(180deg, rgba(6,10,28,.62), rgba(6,10,28,.48)) !important; }
-            #rules, #goods, #order { padding-top: 1rem !important; padding-bottom: 1rem !important; }
-            .glass { box-shadow: none !important; }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            #stars, #clouds, .noise { display: none !important; }
-            .glow:before { display: none !important; }
-            .glass, .btn { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
-        }
-
-        .yammy-check {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 6px;
-            border: 1px solid rgba(255,255,255,.38);
-            background: rgba(0,0,0,.20);
-            display: inline-grid;
-            place-content: center;
-            cursor: pointer;
-            flex: 0 0 18px;
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
-        }
-
-        .yammy-check:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(255,255,255,.18);
-        }
-
-        .yammy-check::after {
-            content: "";
-            width: 9px;
-            height: 5px;
-            border-left: 2px solid rgba(255,255,255,.92);
-            border-bottom: 2px solid rgba(255,255,255,.92);
-            transform: rotate(-45deg);
-            opacity: 0;
-            margin-top: -1px;
-        }
-
-        .yammy-check:checked::after {
-            opacity: 1;
-        }
-
-        .toast {
-            animation: toastIn .22s ease-out;
-        }
-
-        @keyframes toastIn {
-            from { transform: translateY(12px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        #petals {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            overflow: hidden;
-            z-index: 0;
-        }
-    </style>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['ui-sans-serif', 'system-ui', 'Segoe UI', 'Roboto', 'Arial']
-                    }
-                }
-            }
-        }
-    </script>
+      }
+    }
+  </script>
 </head>
-
-<body class="compact">
-<div id="petals" aria-hidden="true"></div>
-<div id="clouds" aria-hidden="true"></div>
-<div id="stars" aria-hidden="true"></div>
-<div class="noise" aria-hidden="true"></div>
-
-<header class="relative z-10">
-    <div class="mx-auto max-w-6xl px-4 sm:px-6 pt-6 sm:pt-10 pb-3">
-        <div class="glass glow rounded-3xl p-5 sm:p-8">
-            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-                <div>
-                    <div class="inline-flex items-center gap-2 rounded-full px-4 py-2 bg-white/10 border border-white/20">
-                        <span class="text-sm text-white/90">✨ Добро пожаловать</span>
-                        <span class="text-xs text-white/70">магазинчик Ями</span>
-                    </div>
-                    <h1 class="mt-4 text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
-                        Заказывай контент за баллы —
-                        <span class="block text-white/90">быстро, красиво и удобно</span>
-                    </h1>
-                    <p class="mt-4 text-base sm:text-lg text-white/80 max-w-2xl">
-                        Баллы начисляются за клипы. Ниже — правила, мини‑калькулятор и витрина товаров. С телефона всё выглядит так же классно.
-                    </p>
-                    <div class="mt-6 flex flex-wrap gap-3">
-                        <a href="#rules" class="btn rounded-2xl px-5 py-3 text-sm font-semibold">📜 Правила + калькулятор</a>
-                        <a href="#goods" class="btn rounded-2xl px-5 py-3 text-sm font-semibold">🛍️ Товары</a>
-                        <a href="#order" class="btn rounded-2xl px-5 py-3 text-sm font-semibold">✉️ Как оформить заказ</a>
-                    </div>
-                </div>
-                <div class="floaty">
-                    <div class="glass rounded-3xl p-5 sm:p-6 border border-white/20 shadow-[0_16px_54px_rgba(10,20,80,.16)]">
-                        <div class="flex items-start justify-between gap-3">
-                            <div>
-                                <div class="text-sm text-white/80">Подсказка</div>
-                                <div class="mt-1 text-base font-bold">Собери заказ внизу</div>
-                            </div>
-                        </div>
-                        <div class="mt-2 text-xs text-white/75">Калькулятор — в разделе «Правила» (кнопка 🧮). Ничего не копируем — просто считаем.</div>
-                    </div>
-                </div>
-            </div>
+<body class="text-slate-900">
+  <div id="petals" aria-hidden="true"></div>
+  <div class="pointer-events-none fixed inset-0 -z-10">
+    <div class="floaty hidden lg:block" style="top:10%;left:8%;width:220px;height:220px;background:rgba(100,200,255,.25);box-shadow:0 0 80px rgba(100,200,255,.2)"></div>
+    <div class="floaty hidden lg:block" style="top:18%;right:10%;width:260px;height:260px;background:rgba(120,180,255,.20);box-shadow:0 0 100px rgba(120,180,255,.15)"></div>
+    <div class="floaty hidden lg:block" style="bottom:12%;left:18%;width:300px;height:300px;background:rgba(100,220,255,.15);box-shadow:0 0 120px rgba(100,220,255,.1)"></div>
+  </div>
+  
+  <div id="tgWarning" class="hidden mx-auto max-w-6xl px-4 pt-3">
+    <div class="glass rounded-2xl p-4 border border-amber-200/60 bg-amber-50/60">
+      <div class="flex items-start gap-3">
+        <div class="text-xl">⚠️</div>
+        <div class="text-sm text-slate-800">
+          Похоже, ты открыл(а) сайт во встроенном браузере Telegram. Авторизация Twitch и копирование могут работать нестабильно. Лучше открыть в обычном браузере (Chrome/Safari).
         </div>
+      </div>
     </div>
-</header>
-
-<main class="relative z-10">
-    <section id="rules" class="mx-auto max-w-6xl px-4 sm:px-6 py-5 sm:py-8">
-        <div class="grid grid-cols-1 gap-5">
-            <div class="reveal">
-                <div class="glass glow rounded-3xl p-5 sm:p-7">
-                    <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-                        <div class="min-w-0">
-                            <h2 class="text-2xl sm:text-3xl font-extrabold">📜 ПРАВИЛА НАЧИСЛЕНИЯ БАЛЛОВ</h2>
-                            <div class="mt-3 space-y-2 text-white/85 leading-relaxed text-sm sm:text-base">
-                                <p><span class="font-semibold">1️⃣ За каждый клип</span> → <span class="font-bold">+50</span> 🪙.</p>
-                                <p><span class="font-semibold">2️⃣ Если клипов больше одного</span> → к каждому следующему добавляем <span class="font-bold">+3%</span> от суммы предыдущего клипа.</p>
-                                <div class="mt-3 rounded-2xl bg-black/12 border border-white/12 p-4">
-                                    <div class="font-semibold">Примеры:</div>
-                                    <ul class="mt-2 list-disc pl-5 space-y-1 text-white/85">
-                                        <li>1 клип = 50 🪙</li>
-                                        <li>2 клипа = 100 + 3% × 100 × 1 = 103 🪙</li>
-                                        <li>3 клипа = 150 + 3% × 150 × 2 = 159 🪙</li>
-                                        <li>4 клипа = 200 + 3% × 200 × 3 = 218 🪙</li>
-                                    </ul>
-                                </div>
-                                <p class="mt-2"><span class="font-semibold">⚠️ Важно:</span> если клип не о чем — баллы не начисляются!</p>
-                                <p><span class="font-semibold">💡 Совет:</span> чем больше клипов в стриме — тем выгоднее!</p>
-                                <p class="text-white/70 text-xs sm:text-sm">Совет: сначала войди через Twitch справа — так баланс подтянется автоматически ✨</p>
-                            </div>
-                            <div class="mt-4 flex flex-wrap items-center gap-3">
-                                <button id="openCalc" class="btn rounded-2xl px-4 py-2.5 text-sm font-semibold">🧮 Калькулятор</button>
-                                <p class="text-xs text-white/70">Откроется сверху — быстро посчитать баллы.</p>
-                            </div>
-                        </div>
-                        <div class="shrink-0 w-full lg:max-w-sm">
-                            <div class="rounded-2xl bg-white/8 border border-white/14 px-4 py-4">
-                                <div class="flex items-start justify-between gap-3">
-                                    <div>
-                                        <div class="text-sm font-bold text-white/90">🔎 Проверка баланса</div>
-                                        <div id="nickStatus" class="mt-1 text-[11px] text-white/65">Нужно войти через Twitch, чтобы увидеть баланс.</div>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <button id="twitchLoginBtn" class="btn rounded-xl px-3 py-2 text-xs font-semibold">Войти через Twitch</button>
-                                        <button id="twitchLogoutBtn" class="btn rounded-xl px-3 py-2 text-xs font-semibold hidden">Выйти</button>
-                                    </div>
-                                </div>
-                                <div class="mt-4">
-                                    <div class="rounded-2xl bg-black/12 border border-white/12 p-4">
-                                        <div class="text-xs text-white/70">Ваш ник:</div>
-                                        <div id="nickLine" class="mt-1 text-base font-extrabold">—</div>
-                                    </div>
-                                    <div class="mt-3 rounded-2xl bg-black/12 border border-white/12 p-4">
-                                        <div class="flex items-center justify-between">
-                                            <div class="text-xs text-white/70">Баланс:</div>
-                                            <button id="refreshBalance" class="btn rounded-lg px-2 py-1 text-xs font-semibold">🔄 Обновить</button>
-                                        </div>
-                                        <div id="balanceResult" class="mt-1 text-base font-extrabold">—</div>
-                                        <p id="balanceHint" class="mt-2 text-xs text-white/70">Данные подтягиваются из Google Таблицы.</p>
-                                    </div>
-                                    <div class="mt-3 flex items-center gap-2">
-                                        <label class="inline-flex items-center gap-2 text-xs text-white/75 select-none grow">
-                                            <input id="rememberNick" type="checkbox" checked class="yammy-check" />
-                                            <span>Запомнить вход на этом устройстве</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="mt-4 rounded-xl bg-black/14 border border-white/12 px-3 py-3">
-                                    <div class="text-[11px] text-white/70">Либо вы можете проверить на Twitch командой</div>
-                                    <div class="mt-2 flex items-center gap-2">
-                                        <code class="px-2 py-1 rounded-lg bg-black/18 border border-white/12 text-sm">!Баланс</code>
-                                        <button id="copyBalance" class="btn rounded-xl px-3 py-2 text-xs font-semibold">Копировать</button>
-                                    </div>
-                                    <p id="copyToast" class="mt-2 text-xs text-white/70 hidden">Скопировано ✅</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  </div>
+  
+  <main class="relative z-10 mx-auto max-w-6xl px-4 pb-16 pt-6 md:pt-10">
+    <section class="reveal">
+      <div class="glass glow rounded-3xl p-6 md:p-8">
+        <h1 class="text-2xl md:text-3xl font-bold tracking-tight">
+          ✨ Добро пожаловать в магазинчик Ями ✨
+        </h1>
+        <p class="mt-3 text-slate-700 leading-relaxed">
+          Здесь ты можешь заказать контент за баллы, которые заработал(а) на клипах.
+        </p>
+        
+        <div class="mt-5 grid sm:grid-cols-3 gap-3">
+          <div class="glass rounded-2xl p-4 border border-white/60">
+            <div class="text-2xl mb-2">🎬</div>
+            <div class="text-sm text-slate-600">Создавай клипы</div>
+            <div class="font-semibold">+50 баллов за клип</div>
+          </div>
+          <div class="glass rounded-2xl p-4 border border-white/60">
+            <div class="text-2xl mb-2">🛒</div>
+            <div class="text-sm text-slate-600">Выбирай награды</div>
+            <div class="font-semibold">Мемы, кино, игры</div>
+          </div>
+          <div class="glass rounded-2xl p-4 border border-white/60">
+            <div class="text-2xl mb-2">📩</div>
+            <div class="text-sm text-slate-600">Заказывай</div>
+            <div class="font-semibold">Прямо с сайта</div>
+          </div>
         </div>
+        <div class="mt-5 flex flex-wrap gap-2">
+          <a href="#products" class="px-4 py-2 rounded-xl bg-white/75 hover:bg-white transition border border-white/70 font-medium">
+            Выбрать товар
+          </a>
+          <a href="#rules" class="px-4 py-2 rounded-xl glass hover:bg-white/60 transition border border-white/60 font-medium">
+            Правила и калькулятор
+          </a>
+        </div>
+      </div>
     </section>
-
-    <div id="calcModal" class="fixed inset-0 z-50 hidden">
-        <div class="absolute inset-0 bg-black/45 backdrop-blur-sm"></div>
-        <div class="relative mx-auto max-w-md px-4 sm:px-6 pt-20 sm:pt-28">
-            <div class="glass glow rounded-3xl p-5 sm:p-6">
-                <div class="flex items-start justify-between gap-3">
-                    <div>
-                        <h3 class="text-lg font-extrabold">🧮 Калькулятор баллов</h3>
-                        <div class="text-xs text-white/70">+3% каждый следующий клип</div>
-                    </div>
-                    <button id="closeCalc" class="btn rounded-xl px-3 py-2 text-sm font-semibold">✕</button>
-                </div>
-                <div class="mt-4 grid grid-cols-1 gap-3">
-                    <label class="text-sm text-white/80">Сколько клипов?</label>
-                    <div class="flex items-center gap-2">
-                        <button id="clipsMinus" class="btn rounded-xl px-3 py-2 text-sm font-bold">−</button>
-                        <input id="clips" type="number" min="0" value="1" class="w-full rounded-xl bg-black/20 border border-white/20 px-4 py-2 text-white placeholder-white/50 outline-none focus:border-white/40" />
-                        <button id="clipsPlus" class="btn rounded-xl px-3 py-2 text-sm font-bold">+</button>
-                    </div>
-                    <div class="mt-1 rounded-2xl bg-black/12 border border-white/12 p-4">
-                        <div class="text-sm text-white/75">Итого баллов:</div>
-                        <div class="mt-1 text-2xl font-extrabold tracking-tight"><span id="total">50</span> <span class="text-lg">🪙</span></div>
-                        <div class="mt-2 text-xs text-white/70">Считаем: 50, потом каждый следующий = предыдущий × 1.03</div>
-                    </div>
-                    <div class="flex gap-2">
-                        <button id="calcApply" class="btn rounded-2xl px-4 py-3 text-sm font-semibold grow">Готово</button>
-                        <button id="calcCopyInside" class="btn rounded-2xl px-4 py-3 text-sm font-semibold">Копировать</button>
-                    </div>
-                    <p id="calcToastInside" class="text-xs text-white/70 hidden">Скопировано ✅</p>
-                </div>
+    
+    <section id="rules" class="mt-8 md:mt-10">
+      <div class="glass glow rounded-3xl p-6 md:p-8 reveal">
+        <div class="grid lg:grid-cols-[1fr_320px] gap-8 items-start">
+          <div>
+            <h2 class="text-xl md:text-2xl font-bold">📌 ПРАВИЛА НАЧИСЛЕНИЯ БАЛЛОВ</h2>
+            <p class="mt-2 text-slate-600">Баллы начисляются за клипы. Ниже — правила, мини‑калькулятор и витрина товаров.</p>
+            
+            <div class="mt-4 space-y-2 text-slate-800 leading-relaxed">
+              <p>🎬 За каждый клип → <b>+50 баллов</b>.</p>
+              <p>✨ Если клипов больше одного → к каждому следующему добавляем <b>+3%</b> от суммы предыдущего клипа.</p>
+              <div class="mt-3 glass rounded-2xl p-4 border border-white/60">
+                <div class="font-semibold mb-2">Примеры:</div>
+                <ul class="space-y-1 text-sm text-slate-700">
+                  <li>1 клип = 50 🙂</li>
+                  <li>2 клипа = 100 + 3% × 100 × 1 = 103 🙂</li>
+                  <li>3 клипа = 150 + 3% × 150 × 2 = 159 🙂</li>
+                  <li>4 клипа = 200 + 3% × 200 × 3 = 218 🙂</li>
+                </ul>
+              </div>
+              <p class="mt-3">⚠️ Важно: если клип не о чем — баллы не начисляются!</p>
+              <p>💡 Совет: Чем больше клипов в стриме — тем выгоднее!</p>
+              <div class="mt-4 glass rounded-2xl p-4 border border-white/60">
+                <p class="text-slate-800">
+                  🎮 Проверить свои баллы вы можете на твиче, написать в чат <b>!Баланс</b>
+                </p>
+              </div>
             </div>
-        </div>
-    </div>
-
-    <section id="goods" class="mx-auto max-w-6xl px-4 sm:px-6 py-5 sm:py-8">
-        <div class="reveal">
-            <div class="glass glow rounded-3xl p-5 sm:p-7">
-                <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-                    <div>
-                        <h2 class="text-2xl sm:text-3xl font-extrabold">🛍️ Товары</h2>
-                        <p class="mt-2 text-white/80">Нажми «Выбрать» — и перейдём к оформлению.</p>
-                    </div>
-                    <div class="text-sm text-white/75 hidden sm:block">Совет: сначала проверь баллы, потом выбери награду.</div>
-                </div>
-                <div id="goodsGrid" class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            <div class="mt-5 flex flex-wrap gap-2">
+              <button id="openCalc" class="px-4 py-2 rounded-xl bg-white/75 hover:bg-white transition border border-white/70 font-medium">
+                Открыть калькулятор баллов
+              </button>
+              <button id="copyBalanceCmd" class="px-4 py-2 rounded-xl glass hover:bg-white/60 transition border border-white/60 font-medium">
+                Скопировать команду !Баланс
+              </button>
             </div>
+          </div>
+          
+          <aside class="glass glow rounded-3xl p-5 border border-white/60">
+            <div class="flex items-center justify-between gap-3 mb-4">
+              <h3 class="text-lg font-bold">Баланс</h3>
+              <label class="inline-flex items-center gap-2 text-xs text-slate-600 select-none">
+                <input id="rememberNick" type="checkbox" checked class="yammy-check" />
+                <span>Запомнить вход</span>
+              </label>
+            </div>
+            
+            <div id="authStatusBlock" class="glass rounded-2xl p-4 border border-white/60 mb-3">
+              <div class="text-xs text-slate-600">Статус</div>
+              <div id="authStatus" class="font-semibold truncate">Не авторизован(а)</div>
+              <div id="authSub" class="text-xs text-slate-600 mt-1">
+                Войди через Twitch, чтобы проверять баланс и оформлять заказ.
+              </div>
+            </div>
+            
+            <div id="loginButtonBlock" class="mb-3">
+              <button id="btnLogin" class="w-full px-4 py-2 rounded-xl font-medium glass hover:bg-white/60 transition border border-white/60">
+                Войти через Twitch
+              </button>
+            </div>
+            
+            <div id="balanceInfoBlock" class="hidden space-y-3">
+              <div class="glass rounded-2xl p-4 border border-white/60">
+                <div class="flex items-center justify-between gap-2">
+                  <div>
+                    <div class="text-xs text-slate-600">Ник (Twitch)</div>
+                    <div id="displayName" class="font-semibold truncate">—</div>
+                  </div>
+                  <button id="btnLogout" class="px-2 py-1 rounded-lg text-xs font-medium bg-white/70 hover:bg-white/90 transition border border-white/60">
+                    Выход
+                  </button>
+                </div>
+              </div>
+              
+              <div class="glass rounded-2xl p-4 border border-white/60">
+                <div class="text-xs text-slate-600">Баллы</div>
+                <div id="balanceValue" class="text-2xl font-extrabold tracking-tight">—</div>
+                <div id="balanceHint" class="mt-2 text-xs text-slate-600">
+                  Нажми «Обновить», чтобы подтянуть баланс из таблицы.
+                </div>
+              </div>
+              
+              <div class="flex flex-wrap gap-2">
+                <button id="btnRefreshBalance" class="flex-1 px-4 py-2 rounded-xl bg-white/75 hover:bg-white transition border border-white/70 font-medium">
+                  Обновить
+                </button>
+                <button id="btnCopyBalance" class="flex-1 px-4 py-2 rounded-xl glass hover:bg-white/60 transition border border-white/60 font-medium">
+                  Скопировать !Баланс
+                </button>
+              </div>
+              <div id="balanceError" class="hidden glass rounded-2xl p-4 border border-rose-200/70 bg-rose-50/60 text-sm text-rose-700">
+                Ошибка
+              </div>
+            </div>
+          </aside>
         </div>
+      </div>
     </section>
-
-    <section id="order" class="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-12">
-        <div class="reveal">
-            <div class="glass glow rounded-3xl p-6 sm:p-8">
-                <div class="flex flex-col lg:flex-row gap-6 lg:items-start lg:justify-between">
-                    <div class="max-w-2xl">
-                        <h2 class="text-2xl sm:text-3xl font-extrabold">✉️ Как оформить заказ?</h2>
-                        <p id="orderIntro" class="mt-3 text-white/85 leading-relaxed">Для начала авторизуйтесь на твич.</p>
-                        <p id="orderHelp" class="mt-4 text-white/80 hidden">
-                            Выбери награду в разделе «Товары». Добавь комментарий (если нужно) и нажми «Заказать». Telegram откроется автоматически с готовым текстом.
-                        </p>
-                    </div>
-                    <div class="w-full lg:max-w-sm">
-                        <div id="orderCard" class="glass rounded-3xl p-5 border border-white/20 hidden">
-                            <div id="orderFormContent">
-                                <div class="text-sm text-white/75">Выбрано:</div>
-                                <div id="picked" class="mt-2 text-lg font-extrabold">Пока ничего</div>
-                                <div id="orderMsg" class="mt-3 hidden rounded-2xl border px-4 py-3 text-sm">
-                                    <div id="orderMsgTitle" class="font-bold"></div>
-                                    <div id="orderMsgText" class="mt-1 text-white/80 text-xs"></div>
-                                    <div id="orderMsgActions" class="mt-3 hidden flex flex-wrap gap-2"></div>
-                                </div>
-                                <div class="mt-3">
-                                    <label class="text-sm text-white/80">Доп. комментарий (опционально)</label>
-                                    <textarea id="comment" rows="3" class="mt-2 w-full rounded-2xl bg-black/20 border border-white/20 px-4 py-3 text-white placeholder-white/50 outline-none focus:border-white/40" placeholder="Например: жанр/настроение/какая именно игра..."></textarea>
-                                </div>
-                                <button id="placeOrder" class="btn mt-4 rounded-2xl px-4 py-3 text-sm font-semibold w-full">Заказать</button>
-                            </div>
-                            <div id="orderProcessing" class="hidden text-center py-8">
-                                <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-white/20 border-t-white/90"></div>
-                                <div id="processingText" class="mt-4 text-base font-bold">⏳ Обрабатываем заказ...</div>
-                                <div id="processingHint" class="mt-2 text-xs text-white/70">Проверяем баланс и отправляем в Telegram</div>
-                            </div>
-                            <div id="orderSuccess" class="hidden text-center py-6">
-                                <div class="text-5xl mb-4">✅</div>
-                                <div class="text-xl font-extrabold text-emerald-100">Заказ успешно отправлен!</div>
-                                <div class="mt-2 text-sm text-white/80">Ями получил твой заказ 😊</div>
-                                <button id="orderAgain" class="btn mt-6 rounded-2xl px-6 py-3 text-sm font-semibold">Оформить ещё один заказ</button>
-                            </div>
-                            <div id="orderError" class="hidden text-center py-6">
-                                <div class="text-5xl mb-4">❌</div>
-                                <div id="errorTitle" class="text-xl font-extrabold text-rose-100">Ошибка отправки</div>
-                                <div id="errorText" class="mt-2 text-sm text-white/80">Не удалось отправить заказ</div>
-                                <button id="orderRetry" class="btn mt-6 rounded-2xl px-6 py-3 text-sm font-semibold">Попробовать снова</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-6 text-xs text-white/65">Примечание: этот сайт — удобная витрина. Оплата/подтверждение — по твоим правилам в чате.</div>
-            </div>
+    
+    <section id="products" class="mt-8 md:mt-10">
+      <div class="glass glow rounded-3xl p-6 md:p-8 reveal">
+        <div class="flex items-end justify-between gap-4 flex-wrap">
+          <div>
+            <h2 class="text-xl md:text-2xl font-bold">🛍️ Товары</h2>
+            <p class="mt-2 text-slate-700 text-sm">
+              Если товары в одном стиле — я собираю их в единый блок. Выбирай, и сайт прокрутит тебя к оформлению заказа.
+            </p>
+          </div>
+          <div class="text-sm text-slate-600">
+            Выбранный товар: <span id="selectedProductLabel" class="font-semibold text-slate-900">не выбран</span>
+          </div>
         </div>
+        
+        <div class="mt-6 grid lg:grid-cols-2 gap-4">
+          <div class="glass rounded-3xl p-5 border border-white/60 hover:bg-white/60 transition reveal">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <div class="text-xs text-slate-600">🙂 (Мемы)</div>
+                <div class="text-lg font-bold">Мем-пак</div>
+              </div>
+              <div class="text-xs text-slate-600">Стеклянный стиль</div>
+            </div>
+            
+            <div class="mt-4 grid sm:grid-cols-2 gap-3">
+              <button class="productCard text-left glass rounded-2xl p-4 border border-white/60 hover:bg-white/70 transition" data-title="20 мемов" data-cost="200">
+                <div class="text-sm text-slate-600">200 🙂</div>
+                <div class="font-semibold">20 мемов</div>
+              </button>
+              <button class="productCard text-left glass rounded-2xl p-4 border border-white/60 hover:bg-white/70 transition" data-title="45 мемов" data-cost="400">
+                <div class="text-sm text-slate-600">400 🙂</div>
+                <div class="font-semibold">45 мемов</div>
+              </button>
+            </div>
+          </div>
+          
+          <div class="glass rounded-3xl p-5 border border-white/60 hover:bg-white/60 transition reveal">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <div class="text-xs text-slate-600">🎬 Кино и Аниме</div>
+                <div class="text-lg font-bold">Просмотр</div>
+              </div>
+              <div class="text-xs text-slate-600">до 2 часов</div>
+            </div>
+            
+            <div class="mt-4 grid sm:grid-cols-2 gap-3">
+              <button class="productCard text-left glass rounded-2xl p-4 border border-white/60 hover:bg-white/70 transition" data-title="Фильм / Мультфильм" data-cost="750">
+                <div class="text-sm text-slate-600">750 🙂</div>
+                <div class="font-semibold">Фильм / Мультфильм</div>
+              </button>
+              <button class="productCard text-left glass rounded-2xl p-4 border border-white/60 hover:bg-white/70 transition" data-title="Аниме / Сериал / Телешоу" data-cost="750">
+                <div class="text-sm text-slate-600">750 🙂</div>
+                <div class="font-semibold">Аниме / Сериал / Телешоу</div>
+                <div class="text-xs text-slate-600 mt-1">если зайдет — смотрим фулл</div>
+              </button>
+            </div>
+          </div>
+          
+          <div class="glass rounded-3xl p-5 border border-white/60 hover:bg-white/60 transition reveal">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <div class="text-xs text-slate-600">🔞 (18+)</div>
+                <div class="text-lg font-bold">Boosty</div>
+              </div>
+              <div class="text-xs text-slate-600">на твой/мой выбор</div>
+            </div>
+            
+            <div class="mt-4">
+              <button class="productCard w-full text-left glass rounded-2xl p-4 border border-white/60 hover:bg-white/70 transition" data-title="Хентай аниме / Порно-игры на Boosty" data-cost="1000">
+                <div class="text-sm text-slate-600">1000 🙂</div>
+                <div class="font-semibold">Хентай аниме / Порно-игры на Boosty</div>
+              </button>
+            </div>
+          </div>
+          
+          <div class="glass rounded-3xl p-5 border border-white/60 hover:bg-white/60 transition reveal">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <div class="text-xs text-slate-600">🎮 Геймерская зона</div>
+                <div class="text-lg font-bold">Играем</div>
+              </div>
+              <div class="text-xs text-slate-600">2 часа минимум</div>
+            </div>
+            
+            <div class="mt-4">
+              <button class="productCard w-full text-left glass rounded-2xl p-4 border border-white/60 hover:bg-white/70 transition" data-title="Играю в ТВОЮ игру" data-cost="1500">
+                <div class="text-sm text-slate-600">1500 🙂</div>
+                <div class="font-semibold">Играю в ТВОЮ игру</div>
+                <div class="text-xs text-slate-600 mt-1">Для MMO — только бесплатные игры. Если игра не «зашла» — стоп через 2 часа.</div>
+              </button>
+            </div>
+          </div>
+          
+          <div class="glass rounded-3xl p-5 border border-white/60 hover:bg-white/60 transition lg:col-span-2 reveal">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+              <div>
+                <div class="text-xs text-slate-600">👑 Ультимативный заказ</div>
+                <div class="text-lg font-bold">12 часов стрима</div>
+              </div>
+              <div class="text-sm text-slate-700 font-semibold">5000 🙂</div>
+            </div>
+            
+            <div class="mt-4">
+              <button class="productCard w-full text-left glass rounded-2xl p-4 border border-white/60 hover:bg-white/70 transition" data-title="12 часов стрима" data-cost="5000">
+                <div class="text-sm text-slate-600">5000 🙂</div>
+                <div class="font-semibold">— / 12 часов стрима!</div>
+              </button>
+            </div>
+          </div>
+          
+          <div class="glass rounded-3xl p-5 border border-white/60 hover:bg-white/60 transition reveal">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <div class="text-xs text-slate-600">🖌️ Рисунки</div>
+                <div class="text-lg font-bold">Арт</div>
+              </div>
+              <div class="text-xs text-slate-600">Небольшие рисунки</div>
+            </div>
+            
+            <div class="mt-4">
+              <button class="productCard w-full text-left glass rounded-2xl p-4 border border-white/60 hover:bg-white/70 transition" data-title="Заказать всратыша" data-cost="3000">
+                <div class="text-sm text-slate-600">3000 🙂</div>
+                <div class="font-semibold">Заказать всратыша</div>
+              </button>
+            </div>
+          </div>
+          
+          <div class="glass rounded-3xl p-5 border border-white/60 hover:bg-white/60 transition reveal">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <div class="text-xs text-slate-600">🎁 Свой вариант</div>
+                <div class="text-lg font-bold">Предложение</div>
+              </div>
+              <div class="text-xs text-slate-600">Индивидуально</div>
+            </div>
+            
+            <div class="mt-4">
+              <button class="productCard w-full text-left glass rounded-2xl p-4 border border-white/60 hover:bg-white/70 transition" data-title="Хочу обсудить индивидуальный заказ" data-cost="null">
+                <div class="text-sm text-slate-600">—</div>
+                <div class="font-semibold">Хочу обсудить индивидуальный заказ</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
-
-    <footer class="mx-auto max-w-6xl px-4 sm:px-6 pb-10">
-        <div class="glass rounded-3xl p-5 sm:p-6 border border-white/20 text-white/75">
-            <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-                <div>
-                    <div class="font-bold text-white/90">✨ Магазинчик Ями</div>
-                    <div class="text-xs">С Любовью ❤️</div>
-                </div>
-                <button id="toTop" class="btn rounded-2xl px-4 py-3 text-sm font-semibold">Наверх ↑</button>
-            </div>
+    
+    <section id="howto" class="mt-8 md:mt-10 grid lg:grid-cols-2 gap-6 items-start">
+      <div class="glass glow rounded-3xl p-6 md:p-8 reveal">
+        <h2 class="text-xl md:text-2xl font-bold">Как оформить заказ?</h2>
+        <p class="mt-3 text-slate-700 leading-relaxed">
+          Напишите мне в ЛС в Telegram — одним кликом из этого сайта.
+        </p>
+        <ol class="mt-4 space-y-2 text-slate-800">
+          <li>1) Выбери награду в разделе «Товары».</li>
+          <li>2) Добавь комментарий (если нужно) и нажми «Заказать».</li>
+          <li>3) Я получу заказ в Telegram и отвечу тебе.</li>
+        </ol>
+      </div>
+      
+      <div id="order" class="glass glow rounded-3xl p-6 md:p-8 reveal">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h3 class="text-xl font-bold">Оформление заказа</h3>
+            <p class="mt-1 text-sm text-slate-700">
+              Выбери товар, проверь баланс и отправь заказ.
+            </p>
+          </div>
+          <div class="text-right text-sm">
+            <div class="text-slate-600">Стоимость</div>
+            <div id="orderCost" class="text-2xl font-extrabold">—</div>
+          </div>
         </div>
+        
+        <form id="orderForm" class="mt-5 space-y-3">
+          <div class="glass rounded-2xl p-4 border border-white/60">
+            <label class="text-xs text-slate-600">Товар</label>
+            <div id="orderProduct" class="font-semibold mt-1">Не выбран</div>
+          </div>
+          
+          <div>
+            <label for="comment" class="text-xs text-slate-600">Комментарий (опционально)</label>
+            <textarea id="comment" rows="4" class="mt-1 w-full rounded-2xl glass border border-white/60 p-4 outline-none focus:ring-2 focus:ring-white/60" placeholder="Например: какой фильм / какая игра / любые пожелания"></textarea>
+          </div>
+          
+          <div id="inlineMsg" class="hidden glass rounded-2xl p-4 border border-white/60 text-sm"></div>
+          
+          <button id="btnOrder" type="submit" class="w-full px-5 py-3 rounded-2xl font-semibold bg-white/80 hover:bg-white transition border border-white/70">
+            Заказать
+          </button>
+          <button id="btnOrderAgain" type="button" class="hidden w-full px-5 py-3 rounded-2xl font-semibold glass hover:bg-white/60 transition border border-white/60">
+            Оформить ещё один заказ
+          </button>
+        </form>
+        
+        <div id="progressArea" class="hidden mt-5 glass rounded-2xl p-4 border border-white/60">
+          <div class="flex items-center gap-3">
+            <div id="spinner" class="h-5 w-5 rounded-full border-2 border-slate-900/25 border-t-slate-900 animate-spin"></div>
+            <div id="progressText" class="text-sm text-slate-800">Обрабатываем заказ...</div>
+          </div>
+          <div id="progressSub" class="mt-1 text-xs text-slate-600"></div>
+        </div>
+      </div>
+    </section>
+    
+    <footer class="mt-10">
+      <div class="glass glow rounded-3xl p-6 md:p-8 text-sm text-slate-700 reveal">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            Сделано с любовью ❤️
+          </div>
+          <a href="#top" id="toTop" class="px-4 py-2 rounded-xl glass hover:bg-white/60 transition border border-white/60 font-medium">
+            Наверх
+          </a>
+        </div>
+      </div>
     </footer>
-</main>
-
-<script>
-    // === ОПРЕДЕЛЕНИЕ ПРОБЛЕМНЫХ БРАУЗЕРОВ ===
+  </main>
+  
+  <div id="calcModal" class="hidden fixed inset-0 z-50">
+    <div class="absolute inset-0 modal-backdrop"></div>
+    
+    <div class="relative mx-auto max-w-lg px-4 py-8">
+      <div class="glass glow rounded-3xl p-6 md:p-7 border border-white/60">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <div class="text-lg font-bold">Калькулятор баллов</div>
+            <div class="text-sm text-slate-700 mt-1">+3% каждый следующий клип</div>
+          </div>
+          <button id="closeCalc" class="px-3 py-2 rounded-xl glass border border-white/60 hover:bg-white/60 transition">
+            Закрыть
+          </button>
+        </div>
+        
+        <div class="mt-5 grid grid-cols-[auto_1fr_auto] gap-2 items-center">
+          <button id="clipsMinus" class="h-12 w-12 rounded-2xl glass border border-white/60 hover:bg-white/60 transition text-xl">−</button>
+          <input id="clipsInput" inputmode="numeric" pattern="[0-9]*" class="h-12 w-full rounded-2xl glass border border-white/60 px-4 text-center text-lg font-semibold outline-none focus:ring-2 focus:ring-white/60" value="1" />
+          <button id="clipsPlus" class="h-12 w-12 rounded-2xl glass border border-white/60 hover:bg-white/60 transition text-xl">+</button>
+        </div>
+        
+        <div class="mt-4 glass rounded-2xl p-4 border border-white/60">
+          <div class="text-xs text-slate-600">Результат</div>
+          <div class="mt-1 flex items-center justify-between gap-3">
+            <div id="calcResult" class="text-3xl font-extrabold">50</div>
+            <button id="copyCalc" class="px-4 py-2 rounded-xl bg-white/75 hover:bg-white transition border border-white/70 font-medium">
+              Копировать
+            </button>
+          </div>
+          <div class="mt-1 text-xs text-slate-600">Закрытие: ESC</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div id="toastHost" class="fixed z-[60] bottom-4 left-0 right-0 px-4 flex flex-col items-center gap-2"></div>
+  
+  <script>
+    // --- In-app browsers fallback ---
     try {
-        const ua = (navigator.userAgent || '').toLowerCase();
-        const inApp = ua.includes('telegram') || ua.includes('instagram') || ua.includes('fbav') || ua.includes('fban');
-        if (inApp) document.documentElement.classList.add('no-io');
-        if (!('IntersectionObserver' in window)) document.documentElement.classList.add('no-io');
+      const ua = (navigator.userAgent || '').toLowerCase();
+      const inApp = ua.includes('telegram') || ua.includes('instagram') || ua.includes('fbav') || ua.includes('fban');
+      if (inApp) document.documentElement.classList.add('no-io');
+      if (!('IntersectionObserver' in window)) document.documentElement.classList.add('no-io');
     } catch (e) {
-        document.documentElement.classList.add('no-io');
+      document.documentElement.classList.add('no-io');
     }
 
-    // === HELPERS ===
+    // ----- Helpers -----
     const $ = (sel, root = document) => root.querySelector(sel);
     const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
     async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
         try {
-            await navigator.clipboard.writeText(text);
-            return true;
-        } catch (e) {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            ta.style.position = 'fixed';
-            ta.style.left = '-9999px';
-            document.body.appendChild(ta);
-            ta.select();
-            try {
-                document.execCommand('copy');
-                return true;
-            } catch (err) {
-                return false;
-            } finally {
-                document.body.removeChild(ta);
-            }
+          document.execCommand('copy');
+          return true;
+        } catch (err) {
+          return false;
+        } finally {
+          document.body.removeChild(ta);
         }
+      }
     }
 
     function toast(el) {
-        if (!el) return;
-        el.classList.remove('hidden');
+      if (!el) return;
+      el.classList.remove('hidden');
+      el.style.opacity = '0';
+      el.style.transition = 'opacity .25s ease';
+      requestAnimationFrame(() => el.style.opacity = '1');
+      clearTimeout(el._t);
+      el._t = setTimeout(() => {
         el.style.opacity = '0';
-        el.style.transition = 'opacity .25s ease';
-        requestAnimationFrame(() => el.style.opacity = '1');
-        clearTimeout(el._t);
-        el._t = setTimeout(() => {
-            el.style.opacity = '0';
-            setTimeout(() => el.classList.add('hidden'), 260);
-        }, 1300);
+        setTimeout(() => el.classList.add('hidden'), 260);
+      }, 1300);
     }
 
     function roundNice(n) {
-        const r = Math.round(n);
-        if (Math.abs(n - r) < 1e-9) return String(r);
-        const one = Math.round(n * 10) / 10;
-        return String(one).replace('.', ',');
+      const r = Math.round(n);
+      if (Math.abs(n - r) < 1e-9) return String(r);
+      const one = Math.round(n * 10) / 10;
+      return String(one).replace('.', ',');
     }
 
-    // === CALCULATOR ===
+    // ----- Calculator -----
     function calcTotal(clips) {
-        clips = Math.max(0, Math.floor(Number(clips) || 0));
-        const base = 50 * clips;
-        const bonus = 0.03 * base * (clips - 1);
-        return base + bonus;
+      clips = Math.max(0, Math.floor(Number(clips) || 0));
+      // Формула: S = 50×N + 0.03×(50×N)×(N-1)
+      const base = 50 * clips;
+      const bonus = 0.03 * base * (clips - 1);
+      return base + bonus;
     }
 
     function updateCalc() {
-        const clipsEl = $('#clips');
-        const totalEl = $('#total');
-        if (!clipsEl || !totalEl) return;
-        let c = Math.max(0, Math.floor(Number(clipsEl.value || 0)));
-        clipsEl.value = c;
-        totalEl.textContent = roundNice(calcTotal(c));
+      const clipsEl = $('#clipsInput');
+      const totalEl = $('#calcResult');
+      if (!clipsEl || !totalEl) return;
+      let c = Math.max(0, Math.floor(Number(clipsEl.value || 0)));
+      clipsEl.value = c;
+      totalEl.textContent = roundNice(calcTotal(c));
     }
 
-    function openCalc() {
-        const m = $('#calcModal');
-        if (!m) return;
-        m.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        updateCalc();
-        setTimeout(() => $('#clips')?.focus(), 50);
+    function openCalcModal() {
+      const m = $('#calcModal');
+      if (!m) return;
+      m.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      updateCalc();
+      setTimeout(() => $('#clipsInput')?.focus(), 50);
     }
 
-    function closeCalc() {
-        const m = $('#calcModal');
-        if (!m) return;
-        m.classList.add('hidden');
-        document.body.style.overflow = '';
+    function closeCalcModal() {
+      const m = $('#calcModal');
+      if (!m) return;
+      m.classList.add('hidden');
+      document.body.style.overflow = '';
     }
 
-    function initCalculator() {
-        $('#clipsMinus')?.addEventListener('click', () => {
-            const i = $('#clips');
-            if (!i) return;
-            i.value = Math.max(0, (Number(i.value) || 0) - 1);
-            updateCalc();
-        });
-        $('#clipsPlus')?.addEventListener('click', () => {
-            const i = $('#clips');
-            if (!i) return;
-            i.value = (Number(i.value) || 0) + 1;
-            updateCalc();
-        });
-        $('#clips')?.addEventListener('input', updateCalc);
-        $('#openCalc')?.addEventListener('click', openCalc);
-        $('#closeCalc')?.addEventListener('click', closeCalc);
-        $('#calcApply')?.addEventListener('click', closeCalc);
-        $('#calcModal .absolute')?.addEventListener('click', closeCalc);
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !$('#calcModal')?.classList.contains('hidden')) closeCalc();
-        });
-        $('#calcCopyInside')?.addEventListener('click', async () => {
-            const c = Number($('#clips')?.value) || 0;
-            const t = $('#total')?.textContent || '';
-            const ok = await copyText(`Клипов: ${c}. Итого баллов: ${t} 🪙`);
-            if (ok) toast($('#calcToastInside'));
-        });
-        updateCalc();
-    }
-
-    function initCopyButtons() {
-        $('#copyBalance')?.addEventListener('click', async () => {
-            const ok = await copyText('!Баланс');
-            if (ok) toast($('#copyToast'));
-        });
-    }
-
-    // === PRODUCTS ===
-    const PRODUCTS = [
-        {
-            title: '🥨 Закуски (Мемы)',
-            badge: 'юмор',
-            note: 'Лёгкий контент для настроения ✨',
-            options: [
-                { label: '20 мемов', price: 200 },
-                { label: '45 мемов', price: 400 }
-            ]
-        },
-        {
-            title: '🍿 Основное блюдо (Кино и Аниме)',
-            badge: 'до 2 часов',
-            note: 'Если зайдёт — смотрим фулл.',
-            options: [
-                { label: 'Фильм / Мультфильм', price: 750 },
-                { label: 'Аниме / Сериал / Телешоу', price: 750 }
-            ]
-        },
-        {
-            title: '🌶️ На десерт (18+)',
-            badge: '18+',
-            note: 'На твой/мой выбор.',
-            options: [
-                { label: 'Хентай аниме / Порно‑игры на Boosty', price: 1000 }
-            ]
-        },
-        {
-            title: '🎮 Геймерская зона',
-            badge: '2 часа',
-            note: '❗ Для MMO — только бесплатные игры. ⚠️ Если игра не «зашла» — стоп через 2 часа.',
-            options: [
-                { label: 'Играю в ТВОЮ игру', price: 1500 }
-            ]
-        },
-        {
-            title: '👑 Ультимативный заказ',
-            badge: 'марафон',
-            note: 'Для самых мощных заказов ✨',
-            options: [
-                { label: '12 часов стрима', price: 5000 }
-            ]
-        },
-        {
-            title: '🖌️ Рисунки',
-            badge: 'арт',
-            note: 'Небольшие рисунки по твоей идее ✨',
-            options: [
-                { label: 'Заказать всратыша', price: 3000 }
-            ]
-        },
-        {
-            title: '🎁 Свой вариант',
-            badge: 'предложение',
-            note: 'Главное — чтобы было интересно и по правилам ✨',
-            options: [
-                { label: 'Хочу обсудить индивидуальный заказ', price: null }
-            ]
-        }
-    ];
-
-    function formatCoins(price) {
-        return (price === null || price === undefined) ? '—' : `${price} 🪙`;
-    }
-
-    function orderTextFrom(title, opt) {
-        const p = (opt.price === null || opt.price === undefined) ? '' : ` (${opt.price} 🪙)`;
-        return `${title} — ${opt.label}${p}`;
-    }
-
-    function renderGoods() {
-        const grid = document.getElementById('goodsGrid');
-        if (!grid) return;
-        grid.innerHTML = '';
-
-        for (const product of PRODUCTS) {
-            const card = document.createElement('article');
-            card.className = 'group glass rounded-3xl border border-white/20 hover:border-white/40 transition-all duration-300 hover:-translate-y-1 p-5';
-            
-            const head = document.createElement('div');
-            head.className = 'flex items-center justify-between gap-3';
-            head.innerHTML = `
-                <h3 class="text-xl font-extrabold">${product.title}</h3>
-                <span class="text-xs px-3 py-1 rounded-full bg-white/10 border border-white/15">${product.badge || ''}</span>
-            `;
-            
-            const list = document.createElement('ul');
-            list.className = 'mt-3 space-y-2 text-white/85';
-            list.innerHTML = product.options.map(opt => `
-                <li class="flex items-center justify-between">
-                    <span>${opt.label}</span>
-                    <span class="font-bold">${formatCoins(opt.price)}</span>
-                </li>
-            `).join('');
-            
-            const actions = document.createElement('div');
-            actions.className = 'mt-4 flex flex-wrap gap-2';
-            product.options.forEach((opt, idx) => {
-                const b = document.createElement('button');
-                b.className = 'btn rounded-2xl px-4 py-2 text-sm font-semibold';
-                if (idx === 0) b.classList.add('grow');
-                const label = (opt.price === null || opt.price === undefined) ? 'Выбрать' : `Выбрать ${opt.price}`;
-                b.textContent = label;
-                b.setAttribute('data-order', orderTextFrom(product.title, opt));
-                actions.appendChild(b);
-            });
-            
-            const note = document.createElement('p');
-            note.className = 'mt-3 text-xs text-white/70';
-            note.textContent = product.note || '';
-            
-            card.appendChild(head);
-            card.appendChild(list);
-            card.appendChild(actions);
-            card.appendChild(note);
-            grid.appendChild(card);
-        }
-    }
-
+    // ----- Products -----
     let picked = '';
+    let pickedCost = null;
 
-    function wireGoodsButtons() {
-        $$('#goodsGrid [data-order]').forEach(btn => {
-            btn.addEventListener('click', () => {
-                picked = btn.getAttribute('data-order') || '';
-                const pickedEl = $('#picked');
-                if (pickedEl) pickedEl.textContent = picked || 'Пока ничего';
-                document.querySelector('#order')?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
-            });
-        });
+    function setSelectedProduct(p) {
+      picked = p.title;
+      pickedCost = p.cost === 'null' ? null : Number(p.cost);
+      const selectedProductLabel = $('#selectedProductLabel');
+      const orderProduct = $('#orderProduct');
+      const orderCost = $('#orderCost');
+      
+      if (selectedProductLabel) selectedProductLabel.textContent = `${p.title}`;
+      if (orderProduct) orderProduct.textContent = `${p.title}`;
+      if (orderCost) orderCost.textContent = p.cost === 'null' ? '—' : `${p.cost} 🙂`;
+      
+      // Highlight selected button
+      $$('.productCard').forEach(btn => {
+        const isActive = (btn.dataset.title === p.title) && (btn.dataset.cost === p.cost);
+        btn.style.outline = isActive ? '2px solid rgba(15,23,42,.35)' : 'none';
+        btn.style.boxShadow = isActive ? '0 0 0 6px rgba(255,255,255,.18)' : '';
+      });
+      
+      // Scroll to order section
+      $('#order')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    function initGoods() {
-        try {
-            renderGoods();
-            wireGoodsButtons();
-        } catch (e) {
-            console.warn('Goods init failed', e);
-        }
-    }
-
-    // === ORDER MESSAGES ===
-    function setOrderMsg({ type = 'info', title = '', text = '', actions = [] } = {}) {
-        const box = document.getElementById('orderMsg');
-        const t = document.getElementById('orderMsgTitle');
-        const tx = document.getElementById('orderMsgText');
-        const act = document.getElementById('orderMsgActions');
-        if (!box || !t || !tx || !act) return;
-
-        const styles = {
-            info: { cls: 'bg-white/8 border-white/18', title: 'text-white/95' },
-            warn: { cls: 'bg-amber-500/10 border-amber-200/25', title: 'text-amber-100' },
-            error: { cls: 'bg-rose-500/10 border-rose-200/25', title: 'text-rose-100' },
-            ok: { cls: 'bg-emerald-500/10 border-emerald-200/25', title: 'text-emerald-100' }
-        };
-
-        const s = styles[type] || styles.info;
-        box.className = `mt-3 rounded-2xl border px-4 py-3 text-sm ${s.cls}`;
-        t.className = `font-bold ${s.title}`;
-        t.textContent = title;
-        tx.textContent = text;
-        act.innerHTML = '';
-        if (actions && actions.length) {
-            act.classList.remove('hidden');
-            for (const a of actions) {
-                const b = document.createElement('button');
-                b.className = 'btn rounded-xl px-3 py-2 text-xs font-semibold';
-                b.textContent = a.label;
-                b.addEventListener('click', a.onClick);
-                act.appendChild(b);
-            }
-        } else {
-            act.classList.add('hidden');
-        }
-        box.classList.remove('hidden');
-        box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-
-    function clearOrderMsg() {
-        const box = document.getElementById('orderMsg');
-        if (box) box.classList.add('hidden');
-        const act = document.getElementById('orderMsgActions');
-        if (act) act.classList.add('hidden');
-    }
-
-    // === TELEGRAM BOT API ===
-    const TELEGRAM_BOT_API_URL = 'https://script.google.com/macros/s/AKfycbzn3wvaFYwSWkopLZP1ueRb52pJnbWM7sB2Ay4DOx3FPPvBQITpaLF-cx2hflnZ10-_Xg/exec';
-
-    async function sendOrderToBot({ nick, item, price, comment }) {
-        try {
-            console.log('Отправка заказа:', { nick, item, price, comment });
-            const res = await fetch(TELEGRAM_BOT_API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({
-                    nick: nick || 'Не указан',
-                    item: item || 'Не указано',
-                    price: price || '—',
-                    comment: comment || 'Нет'
-                })
-            });
-
-            console.log('Статус ответа:', res.status);
-            const text = await res.text();
-            console.log('Ответ сервера:', text);
-
-            let data;
-            try {
-                data = JSON.parse(text);
-            } catch (e) {
-                console.error('Ошибка парсинга JSON:', e);
-                return { ok: false, error: 'Неверный формат ответа сервера', raw: text };
-            }
-
-            console.log('Данные:', data);
-            return data;
-        } catch (e) {
-            console.error('Ошибка отправки:', e);
-            return { ok: false, error: String(e) };
-        }
-    }
-
-    // === GOOGLE SHEETS API ===
+    // ----- Google Sheets API (Apps Script) -----
     const BALANCE_API_URL = 'https://script.google.com/macros/s/AKfycbxv93RskaQaMSQ4t41bpKLhUfx1RQHiwPl-tdYicJ12lvDJ7ZCZhSCAwR2PjSYqZDo/exec';
     const SPEND_ENABLED = true;
     const SPEND_TOKEN = 'yammy_spend_v1';
 
-    function normNick(s) {
-        return String(s ?? '').trim().toLowerCase();
-    }
+    function normNick(s) { return String(s ?? '').trim().toLowerCase(); }
 
     function parsePoints(v) {
-        if (v === null || v === undefined) return NaN;
-        if (typeof v === 'number') return v;
-        const s = String(v).trim().replace(',', '.');
-        const n = Number(s);
-        return Number.isFinite(n) ? n : NaN;
+      if (v === null || v === undefined) return NaN;
+      if (typeof v === 'number') return v;
+      const s = String(v).trim().replace(',', '.');
+      const n = Number(s);
+      return Number.isFinite(n) ? n : NaN;
     }
 
     async function fetchBalances() {
-        const res = await fetch(BALANCE_API_URL, { cache: 'no-store' });
-        if (!res.ok) throw new Error('API request failed');
-        const json = await res.json();
-        if (!json || json.ok !== true || !Array.isArray(json.data)) throw new Error('Bad API payload');
-        return json.data;
+      const res = await fetch(BALANCE_API_URL, { cache: 'no-store' });
+      if (!res.ok) throw new Error('API request failed');
+      const json = await res.json();
+      if (!json || json.ok !== true || !Array.isArray(json.data)) throw new Error('Bad API payload');
+      return json.data;
     }
 
     async function spendPoints({ nick, amount, item, comment } = {}) {
-        const cleanNick = String(nick || '').trim();
-        const a = Number(amount);
-        if (!cleanNick) return { ok: false, reason: 'nonick' };
-        if (!Number.isFinite(a) || a <= 0) return { ok: false, reason: 'badamount' };
+      const cleanNick = String(nick || '').trim();
+      const a = Number(amount);
+      if (!cleanNick) return { ok: false, reason: 'nonick' };
+      if (!Number.isFinite(a) || a <= 0) return { ok: false, reason: 'badamount' };
 
-        const payload = {
-            action: 'spend',
-            token: SPEND_TOKEN,
-            nick: cleanNick,
-            amount: a,
-            item: String(item || '').slice(0, 200),
-            comment: String(comment || '').slice(0, 500),
-            at: Date.now()
-        };
+      const payload = {
+        action: 'spend',
+        token: SPEND_TOKEN,
+        nick: cleanNick,
+        amount: a,
+        item: String(item || '').slice(0, 200),
+        comment: String(comment || '').slice(0, 500),
+        at: Date.now(),
+      };
 
-        const res = await fetch(BALANCE_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(payload)
-        });
+      const res = await fetch(BALANCE_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
 
-        const txt = await res.text();
-        try {
-            return JSON.parse(txt);
-        } catch (e) {
-            return { ok: false, reason: 'badjson', raw: txt.slice(0, 200) };
-        }
+      const txt = await res.text();
+      try { return JSON.parse(txt); }
+      catch (e) { return { ok: false, reason: 'badjson', raw: txt.slice(0, 200) }; }
     }
 
     async function findBalanceByNick(nick) {
-        const needle = normNick(nick);
-        if (!needle) return { found: false, reason: 'empty' };
-        const rows = await fetchBalances();
-        const nickKeys = ['Никнейм', 'никнейм', 'Nick', 'nick', 'Ник', 'ник'];
-        const pointsKeys = ['Итоговые баллы', 'итоговые баллы', 'Баллы', 'баллы', 'Points', 'points'];
+      const needle = normNick(nick);
+      if (!needle) return { found: false, reason: 'empty' };
+      const rows = await fetchBalances();
+      const nickKeys = ['Никнейм', 'никнейм', 'Nick', 'nick', 'Ник', 'ник'];
+      const pointsKeys = ['Итоговые баллы', 'итоговые баллы', 'Баллы', 'баллы', 'Points', 'points'];
 
-        for (const r of rows) {
-            const nickVal = nickKeys.map(k => r[k]).find(v => v !== undefined);
-            const rowNick = normNick(nickVal);
-            if (!rowNick) continue;
-            if (rowNick === needle) {
-                const ptsVal = pointsKeys.map(k => r[k]).find(v => v !== undefined);
-                const pts = parsePoints(ptsVal);
-                return { found: true, nick: nickVal ?? nick, points: ptsVal, pointsNum: pts };
-            }
+      for (const r of rows) {
+        const nickVal = nickKeys.map(k => r[k]).find(v => v !== undefined);
+        const rowNick = normNick(nickVal);
+        if (!rowNick) continue;
+        if (rowNick === needle) {
+          const ptsVal = pointsKeys.map(k => r[k]).find(v => v !== undefined);
+          const pts = parsePoints(ptsVal);
+          return { found: true, nick: nickVal ?? nick, points: ptsVal, pointsNum: pts };
         }
-        return { found: false, reason: 'notfound' };
+      }
+      return { found: false, reason: 'notfound' };
     }
 
-    // === TWITCH OAUTH (PKCE primary + Implicit fallback) ===
+    // ----- Twitch OAuth (PKCE primary + Implicit fallback) -----
     const TWITCH_CLIENT_ID = '89zu7axvj9y80avfsn6a5l20mv5kjq';
-    const TWITCH_REDIRECT_URI = window.location.href.split('#')[0];
+    const TWITCH_REDIRECT_URI = 'https://yammyvt.github.io/YammyTanuki/';
     const TWITCH_SCOPES = [];
     const AUTH_STORAGE_KEY = 'yammy_twitch_auth_v2';
     const PKCE_STORAGE_KEY = 'yammy_twitch_pkce_v2';
 
-    function setPkceState(obj) {
-        sessionStorage.setItem(PKCE_STORAGE_KEY, JSON.stringify(obj || {}));
-    }
-
-    function getPkceState() {
-        try {
-            return JSON.parse(sessionStorage.getItem(PKCE_STORAGE_KEY) || '{}');
-        } catch (e) {
-            return {};
-        }
-    }
-
-    function clearPkceState() {
-        sessionStorage.removeItem(PKCE_STORAGE_KEY);
-    }
+    function setPkceState(obj) { sessionStorage.setItem(PKCE_STORAGE_KEY, JSON.stringify(obj || {})); }
+    function getPkceState() { try { return JSON.parse(sessionStorage.getItem(PKCE_STORAGE_KEY) || '{}'); } catch (e) { return {}; } }
+    function clearPkceState() { sessionStorage.removeItem(PKCE_STORAGE_KEY); }
 
     function setAuth(obj) {
-        const remember = document.getElementById('rememberNick');
-        const data = obj || {};
-        try {
-            if (remember && remember.checked === false) {
-                sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
-                localStorage.removeItem(AUTH_STORAGE_KEY);
-            } else {
-                localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
-                sessionStorage.removeItem(AUTH_STORAGE_KEY);
-            }
-        } catch (e) {
-            try {
-                localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
-            } catch (err) { }
+      const remember = document.getElementById('rememberNick');
+      const data = obj || {};
+      try {
+        if (remember && remember.checked === false) {
+          sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
+          localStorage.removeItem(AUTH_STORAGE_KEY);
+        } else {
+          localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
+          sessionStorage.removeItem(AUTH_STORAGE_KEY);
         }
+      } catch (e) {
+        try { localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data)); } catch (err) {}
+      }
     }
 
     function getAuth() {
-        try {
-            const s = sessionStorage.getItem(AUTH_STORAGE_KEY);
-            if (s) return JSON.parse(s);
-        } catch (e) { }
-        try {
-            return JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) || '{}');
-        } catch (e) {
-            return {};
-        }
+      try { const s = sessionStorage.getItem(AUTH_STORAGE_KEY); if (s) return JSON.parse(s); } catch (e) {}
+      try { return JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) || '{}'); } catch (e) { return {}; }
     }
 
     function clearAuth() {
-        try {
-            localStorage.removeItem(AUTH_STORAGE_KEY);
-        } catch (e) { }
-        try {
-            sessionStorage.removeItem(AUTH_STORAGE_KEY);
-        } catch (e) { }
+      try { localStorage.removeItem(AUTH_STORAGE_KEY); } catch (e) {}
+      try { sessionStorage.removeItem(AUTH_STORAGE_KEY); } catch (e) {}
     }
 
     function base64UrlEncode(uint8) {
-        let s = '';
-        uint8.forEach(b => s += String.fromCharCode(b));
-        return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+/g, '');
+      let s = '';
+      uint8.forEach(b => s += String.fromCharCode(b));
+      return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     }
 
     function randomString(len = 64) {
-        try {
-            const a = new Uint8Array(len);
-            crypto.getRandomValues(a);
-            return base64UrlEncode(a);
-        } catch (e) {
-            let s = '';
-            for (let i = 0; i < len; i++) s += String.fromCharCode(Math.floor(Math.random() * 256));
-            return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+/g, '');
-        }
+      try {
+        const a = new Uint8Array(len);
+        crypto.getRandomValues(a);
+        return base64UrlEncode(a);
+      } catch (e) {
+        let s = '';
+        for (let i = 0; i < len; i++) s += String.fromCharCode(Math.floor(Math.random() * 256));
+        return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      }
     }
 
     async function sha256(text) {
-        const enc = new TextEncoder().encode(text);
-        const hash = await crypto.subtle.digest('SHA-256', enc);
-        return new Uint8Array(hash);
+      const enc = new TextEncoder().encode(text);
+      const hash = await crypto.subtle.digest('SHA-256', enc);
+      return new Uint8Array(hash);
     }
 
     function withTimeout(promise, ms = 12000) {
-        return new Promise((resolve, reject) => {
-            const t = setTimeout(() => reject(new Error('Timeout')), ms);
-            promise.then(v => { clearTimeout(t); resolve(v); }, e => { clearTimeout(t); reject(e); });
-        });
+      return new Promise((resolve, reject) => {
+        const t = setTimeout(() => reject(new Error('Timeout')), ms);
+        promise.then(v => { clearTimeout(t); resolve(v); }, e => { clearTimeout(t); reject(e); });
+      });
     }
 
     function cleanUrlAfterOAuth() {
-        const url = new URL(window.location.href);
-        url.searchParams.delete('code');
-        url.searchParams.delete('scope');
-        url.searchParams.delete('state');
-        window.history.replaceState({}, document.title, url.toString());
+      const url = new URL(window.location.href);
+      url.searchParams.delete('code');
+      url.searchParams.delete('scope');
+      url.searchParams.delete('state');
+      window.history.replaceState({}, document.title, url.toString());
     }
 
     async function twitchExchangeCode(code) {
-        const st = getPkceState();
-        if (!st || !st.verifier) throw new Error('Missing PKCE verifier');
+      const st = getPkceState();
+      if (!st || !st.verifier) throw new Error('Missing PKCE verifier');
+      const redirectUri = String(TWITCH_REDIRECT_URI || '').trim();
+      const dbg = `client_id=${TWITCH_CLIENT_ID} redirect_uri=${redirectUri}`;
+      const params = new URLSearchParams({
+        client_id: TWITCH_CLIENT_ID,
+        grant_type: 'authorization_code',
+        code: String(code || ''),
+        redirect_uri: redirectUri,
+        code_verifier: String(st.verifier || '')
+      });
 
-        const redirectUri = String(TWITCH_REDIRECT_URI || '').trim();
-        const params = new URLSearchParams({
-            client_id: TWITCH_CLIENT_ID,
-            grant_type: 'authorization_code',
-            code: String(code || ''),
-            redirect_uri: redirectUri,
-            code_verifier: String(st.verifier || '')
-        });
+      const endpoints = ['https://id.twitch.tv/oauth2/token', 'https://api.twitch.tv/oauth2/token'];
+      let lastTxt = '';
+      let lastJson = null;
+      let lastStatus = 0;
 
-        const endpoints = ['https://id.twitch.tv/oauth2/token', 'https://api.twitch.tv/oauth2/token'];
-        let lastTxt = '';
-        let lastJson = null;
-        let lastStatus = 0;
-
-        for (const ep of endpoints) {
-            let res;
-            try {
-                res = await withTimeout(fetch(ep, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: params.toString()
-                }), 12000);
-            } catch (e) {
-                lastTxt = String(e?.message || e);
-                lastJson = null;
-                lastStatus = 0;
-                continue;
-            }
-            lastStatus = res.status;
-            lastTxt = await res.text();
-            lastJson = null;
-            try {
-                lastJson = JSON.parse(lastTxt);
-            } catch (e) { }
-            if (res.ok && lastJson?.access_token) return lastJson;
+      for (const ep of endpoints) {
+        let res;
+        try {
+          res = await withTimeout(fetch(ep, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+          }), 12000);
+        } catch (e) {
+          lastTxt = String(e?.message || e);
+          lastJson = null;
+          lastStatus = 0;
+          continue;
         }
+        lastStatus = res.status;
+        lastTxt = await res.text();
+        lastJson = null;
+        try { lastJson = JSON.parse(lastTxt); } catch (e) {}
+        if (res.ok && lastJson?.access_token) return lastJson;
+      }
 
-        const desc = lastJson?.message || lastJson?.error_description || lastJson?.error || lastTxt || `HTTP ${lastStatus}`;
-        throw new Error(`Token exchange failed: ${desc}`);
+      const desc = lastJson?.message || lastJson?.error_description || lastJson?.error || lastTxt || `HTTP ${lastStatus}`;
+      if (String(desc).toLowerCase().includes('invalid client credentials')) {
+        throw new Error(`Token exchange failed: Invalid client credentials (${dbg})`);
+      }
+      if (String(desc).toLowerCase().includes('failed to fetch') || String(desc).toLowerCase().includes('timeout')) {
+        throw new Error(`Token exchange failed: Failed to fetch (возможна блокировка сети/AdBlock/браузером). Попробуй другой браузер или выключи блокировщик. (${dbg})`);
+      }
+      throw new Error(`Token exchange failed: ${desc} (${dbg})`);
     }
 
     async function twitchGetUserHelix(accessToken) {
-        const res = await withTimeout(fetch('https://api.twitch.tv/helix/users', {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Client-ID': TWITCH_CLIENT_ID
-            }
-        }), 12000);
-
-        const txt = await res.text();
-        let json = null;
-        try {
-            json = JSON.parse(txt);
-        } catch (e) { }
-
-        if (!res.ok) {
-            const desc = json?.message || json?.error || txt.slice(0, 200);
-            throw new Error(`Failed to fetch user: ${desc}`);
+      const res = await withTimeout(fetch('https://api.twitch.tv/helix/users', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Client-ID': TWITCH_CLIENT_ID
         }
+      }), 12000);
 
-        const u = json?.data?.[0];
-        const login = String(u?.login || '').trim();
-        const display = String(u?.display_name || login).trim();
-        return login ? { login, display_name: display, login_lower: login.toLowerCase() } : null;
+      const txt = await res.text();
+      let json = null;
+      try { json = JSON.parse(txt); } catch (e) {}
+      if (!res.ok) {
+        const desc = json?.message || json?.error || txt.slice(0, 200);
+        throw new Error(`Failed to fetch user: ${desc}`);
+      }
+      const u = json?.data?.[0];
+      const login = String(u?.login || '').trim();
+      const display = String(u?.display_name || login).trim();
+      return login ? { login, display_name: display, login_lower: login.toLowerCase() } : null;
     }
 
     function handleImplicitTokenFromHash() {
-        const h = String(window.location.hash || '');
-        if (!h || !h.includes('access_token=')) return null;
-        const params = new URLSearchParams(h.replace(/^#/, ''));
-        const token = params.get('access_token');
-        const state = params.get('state') || '';
-        if (!token) return null;
-        try {
-            history.replaceState({}, document.title, window.location.pathname + window.location.search);
-        } catch (e) { }
-        return { access_token: token, state };
+      const h = String(window.location.hash || '');
+      if (!h || !h.includes('access_token=')) return null;
+      const params = new URLSearchParams(h.replace(/^#/, ''));
+      const token = params.get('access_token');
+      const state = params.get('state') || '';
+      if (!token) return null;
+      try { history.replaceState({}, document.title, window.location.pathname + window.location.search); } catch (e) {}
+      return { access_token: token, state };
     }
 
     function setNickUIAuthed(displayName) {
-        const status = document.getElementById('nickStatus');
-        const nickLine = document.getElementById('nickLine');
-        if (nickLine) nickLine.textContent = displayName ? displayName : '—';
-        if (status) status.textContent = displayName ? 'Вы вошли через Twitch.' : 'Нужно войти через Twitch, чтобы увидеть баланс.';
-        document.getElementById('twitchLoginBtn')?.classList.toggle('hidden', !!displayName);
-        document.getElementById('twitchLogoutBtn')?.classList.toggle('hidden', !displayName);
-        try {
-            updateOrderGateUI();
-        } catch (e) { }
+      const status = $('#authStatus');
+      const nickLine = $('#displayName');
+      if (nickLine) nickLine.textContent = displayName ? displayName : '—';
+      if (status) status.textContent = displayName ? 'Вы вошли через Twitch.' : 'Нужно войти через Twitch, чтобы увидеть баланс.';
+
+      $('#authStatusBlock')?.classList.toggle('hidden', !!displayName);
+      $('#loginButtonBlock')?.classList.toggle('hidden', !!displayName);
+      $('#balanceInfoBlock')?.classList.toggle('hidden', !displayName);
+      $('#btnLogout')?.classList.toggle('hidden', !displayName);
     }
 
     function getKnownNick() {
-        const a = getAuth();
-        return String(a?.login || '').trim();
+      const a = getAuth();
+      return String(a?.login || '').trim();
     }
 
     function getKnownDisplayName() {
-        const a = getAuth();
-        return String(a?.display_name || a?.login || '').trim();
+      const a = getAuth();
+      return String(a?.display_name || a?.login || '').trim();
     }
 
     async function refreshBalanceForAuthed() {
-        const out = document.getElementById('balanceResult');
-        const hint = document.getElementById('balanceHint');
-        const nickLine = document.getElementById('nickLine');
-        const login = getKnownNick();
-        let displayName = getKnownDisplayName();
+      const out = $('#balanceValue');
+      const hint = $('#balanceHint');
+      const nickLine = $('#displayName');
+      const login = getKnownNick();
+      let displayName = getKnownDisplayName();
 
-        const auth = getAuth();
-        if (auth?.login && !auth?.display_name && auth?.access_token) {
-            try {
-                const user = await twitchGetUserHelix(auth.access_token);
-                if (user?.display_name) {
-                    auth.display_name = user.display_name;
-                    setAuth(auth);
-                    displayName = user.display_name;
-                }
-            } catch (e) { }
-        }
-
-        if (!login) {
-            if (nickLine) nickLine.textContent = '—';
-            if (out) out.textContent = '—';
-            if (hint) hint.textContent = 'Нужно войти через Twitch, чтобы увидеть баланс.';
-            return;
-        }
-        if (nickLine) nickLine.textContent = displayName;
-        if (!BALANCE_API_URL) {
-            if (out) out.textContent = 'Баланс пока не подключён.';
-            if (hint) hint.textContent = 'Нужно вставить URL Apps Script в переменную BALANCE_API_URL.';
-            return;
-        }
-        if (out) out.textContent = 'Загружаю…';
+      // Если нет display_name в сохраненном auth, попробуем получить с Twitch
+      const auth = getAuth();
+      if (auth?.login && !auth?.display_name && auth?.access_token) {
         try {
-            const res = await findBalanceByNick(login);
-            if (res.found) {
-                const pts = Number.isFinite(res.pointsNum) ? Math.round(res.pointsNum) : res.points;
-                if (out) out.textContent = `${displayName} — ${pts} 🪙`;
-                if (hint) hint.textContent = 'Если баллы не совпадают — проверь обновление таблицы.';
-            } else {
-                if (out) out.textContent = `${displayName} — 0 🪙 😢`;
-                if (hint) hint.textContent = 'У вас 0 баллов 😢';
-            }
+          const user = await twitchGetUserHelix(auth.access_token);
+          if (user?.display_name) {
+            auth.display_name = user.display_name;
+            setAuth(auth);
+            displayName = user.display_name;
+          }
         } catch (e) {
-            if (out) out.textContent = 'Ошибка загрузки.';
-            if (hint) hint.textContent = 'Проверь доступ Apps Script (Deploy → Web app → доступ: "Все").';
+          // Игнорируем ошибки, используем login
         }
+      }
+
+      if (!login) {
+        if (nickLine) nickLine.textContent = '—';
+        if (out) out.textContent = '—';
+        if (hint) hint.textContent = 'Нужно войти через Twitch, чтобы увидеть баланс.';
+        return;
+      }
+
+      if (nickLine) nickLine.textContent = displayName;
+      if (!BALANCE_API_URL) {
+        if (out) out.textContent = 'Баланс пока не подключён.';
+        if (hint) hint.textContent = 'Нужно вставить URL Apps Script в переменную BALANCE_API_URL.';
+        return;
+      }
+
+      if (out) out.textContent = 'Загружаю…';
+      try {
+        const res = await findBalanceByNick(login);
+        if (res.found) {
+          const pts = Number.isFinite(res.pointsNum) ? Math.round(res.pointsNum) : res.points;
+          if (out) out.textContent = `${pts} 🙂`;
+          if (hint) hint.textContent = 'Если баллы не совпадают — проверь обновление таблицы.';
+        } else {
+          if (out) out.textContent = '0 🙂 😢';
+          if (hint) hint.textContent = 'У вас 0 баллов 😢';
+        }
+      } catch (e) {
+        if (out) out.textContent = 'Ошибка загрузки.';
+        if (hint) hint.textContent = 'Проверь доступ Apps Script (Deploy → Web app → доступ: "Все").';
+      }
     }
 
     async function handleTwitchOAuthCallback() {
-        const implicit = handleImplicitTokenFromHash();
-        if (implicit?.access_token) {
-            try {
-                const user = await twitchGetUserHelix(implicit.access_token);
-                if (!user?.login) throw new Error('No login');
-                setAuth({ login: user.login, display_name: user.display_name, access_token: implicit.access_token, obtained_at: Date.now(), implicit: true });
-                setNickUIAuthed(user.display_name);
-                await refreshBalanceForAuthed();
-            } catch (e) {
-                clearAuth();
-                setNickUIAuthed('');
-                const hint = document.getElementById('balanceHint');
-                if (hint) hint.textContent = `Не удалось войти через Twitch. ${String(e?.message || e)}`;
-            }
-            return;
-        }
-
-        const url = new URL(window.location.href);
-        const code = url.searchParams.get('code');
-        const state = url.searchParams.get('state');
-        if (!code) return;
-
-        const st0 = getPkceState();
-        if (!st0?.state || !st0?.verifier) {
-            clearPkceState();
-            cleanUrlAfterOAuth();
-            clearAuth();
-            setNickUIAuthed('');
-            const hint = document.getElementById('balanceHint');
-            if (hint) hint.textContent = 'Не удалось завершить вход. Нажми «Войти через Twitch» ещё раз.';
-            return;
-        }
-
+      // Implicit token flow
+      const implicit = handleImplicitTokenFromHash();
+      if (implicit?.access_token) {
         try {
-            const st = getPkceState();
-            if (st.state !== state) throw new Error('Bad state');
-            const token = await twitchExchangeCode(code);
-            const user = await twitchGetUserHelix(token.access_token);
-            if (!user?.login) throw new Error('No login');
-            setAuth({ login: user.login, display_name: user.display_name, access_token: token.access_token, expires_in: token.expires_in, obtained_at: Date.now() });
-            setNickUIAuthed(user.display_name);
-            await refreshBalanceForAuthed();
+          const user = await twitchGetUserHelix(implicit.access_token);
+          if (!user?.login) throw new Error('No login');
+          setAuth({ login: user.login, display_name: user.display_name, access_token: implicit.access_token, obtained_at: Date.now(), implicit: true });
+          setNickUIAuthed(user.display_name);
+          await refreshBalanceForAuthed();
         } catch (e) {
-            clearAuth();
-            setNickUIAuthed('');
-            const hint = document.getElementById('balanceHint');
-            if (hint) hint.textContent = `Не удалось войти через Twitch. ${String(e?.message || e)}`;
-        } finally {
-            clearPkceState();
-            cleanUrlAfterOAuth();
+          clearAuth();
+          setNickUIAuthed('');
+          const hint = $('#balanceHint');
+          if (hint) hint.textContent = `Не удалось войти через Twitch. ${String(e?.message || e)}`;
         }
+        return;
+      }
+
+      // PKCE code flow
+      const url = new URL(window.location.href);
+      const code = url.searchParams.get('code');
+      const state = url.searchParams.get('state');
+      if (!code) return;
+
+      const st0 = getPkceState();
+      if (!st0?.state || !st0?.verifier) {
+        clearPkceState();
+        cleanUrlAfterOAuth();
+        clearAuth();
+        setNickUIAuthed('');
+        const hint = $('#balanceHint');
+        if (hint) hint.textContent = 'Не удалось завершить вход. Нажми «Войти через Twitch» ещё раз.';
+        return;
+      }
+
+      try {
+        const st = getPkceState();
+        if (st.state !== state) throw new Error('Bad state');
+        const token = await twitchExchangeCode(code);
+        const user = await twitchGetUserHelix(token.access_token);
+        if (!user?.login) throw new Error('No login');
+        setAuth({ login: user.login, display_name: user.display_name, access_token: token.access_token, expires_in: token.expires_in, obtained_at: Date.now() });
+        setNickUIAuthed(user.display_name);
+        await refreshBalanceForAuthed();
+      } catch (e) {
+        clearAuth();
+        setNickUIAuthed('');
+        const hint = $('#balanceHint');
+        if (hint) hint.textContent = `Не удалось войти через Twitch. ${String(e?.message || e)}`;
+      } finally {
+        clearPkceState();
+        cleanUrlAfterOAuth();
+      }
     }
 
     async function twitchLogin() {
-        clearOrderMsg();
-        clearPkceState();
-        try {
-            cleanUrlAfterOAuth();
-        } catch (e) { }
+      clearPkceState();
+      try { cleanUrlAfterOAuth(); } catch (e) {}
 
-        const redirectUri = String(TWITCH_REDIRECT_URI || '').trim();
-        const ua = (navigator.userAgent || '').toLowerCase();
+      const redirectUri = String(TWITCH_REDIRECT_URI || '').trim();
+      const ua = (navigator.userAgent || '').toLowerCase();
 
-        const isAndroid = /android/i.test(ua);
-        const isIOS = /iphone|ipad|ipod/i.test(ua);
-        const isTelegramBrowser = /telegram/i.test(ua) || ua.includes('tgwebview');
+      // Определяем мобильные и проблемные браузеры
+      const isAndroid = /android/i.test(ua);
+      const isIOS = /iphone|ipad|ipod/i.test(ua);
+      const isTelegramBrowser = /telegram/i.test(ua) || ua.includes('tgwebview');
 
-        if (isTelegramBrowser) {
-            setOrderMsg({
-                type: 'info',
-                title: 'Авторизация в Telegram',
-                text: 'Telegram встроенный браузер имеет ограничения безопасности. Нажмите кнопку ниже, скопируйте ссылку и откройте сайт в Chrome или Safari для авторизации.',
-                actions: [
-                    {
-                        label: 'Копировать ссылку на сайт',
-                        onClick: async () => {
-                            const ok = await copyText(window.location.href);
-                            if (ok) {
-                                setOrderMsg({
-                                    type: 'ok',
-                                    title: 'Ссылка скопирована!',
-                                    text: 'Теперь откройте Chrome/Safari, вставьте ссылку и авторизуйтесь там. После этого можно вернуться в Telegram.'
-                                });
-                            }
-                        }
-                    }
-                ]
-            });
-            return;
+      // Telegram - показываем предупреждение
+      if (isTelegramBrowser) {
+        const inlineMsg = $('#inlineMsg');
+        if (inlineMsg) {
+          inlineMsg.className = 'glass rounded-2xl p-4 border border-amber-200/70 bg-amber-50/60 text-sm text-amber-900';
+          inlineMsg.textContent = 'Telegram встроенный браузер имеет ограничения безопасности. Скопируйте ссылку и откройте сайт в Chrome или Safari для авторизации.';
+          inlineMsg.classList.remove('hidden');
         }
+        return;
+      }
 
-        const state = `implicit_${randomString(24)}`;
-        const params = new URLSearchParams({
-            client_id: TWITCH_CLIENT_ID,
-            redirect_uri: redirectUri,
-            response_type: 'token',
-            scope: TWITCH_SCOPES.join(' '),
-            state: state
-        });
+      // Используем Implicit flow для ВСЕХ (проще и надежнее)
+      const state = `implicit_${randomString(24)}`;
+      const params = new URLSearchParams({
+        client_id: TWITCH_CLIENT_ID,
+        redirect_uri: redirectUri,
+        response_type: 'token',
+        scope: TWITCH_SCOPES.join(' '),
+        state: state
+      });
 
-        const authUrl = `https://id.twitch.tv/oauth2/authorize?${params.toString()}`;
+      const authUrl = `https://id.twitch.tv/oauth2/authorize?${params.toString()}`;
 
-        if (isAndroid) {
-            const intentUrl = `intent://id.twitch.tv/oauth2/authorize?${params.toString()}#Intent;scheme=https;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(authUrl)};end;`;
-            window.location.href = intentUrl;
-            setTimeout(() => {
-                window.location.href = authUrl;
-            }, 500);
-        } else {
-            window.location.assign(authUrl);
-        }
+      // Для Android используем Intent URI
+      if (isAndroid && !isTelegramBrowser) {
+        const intentUrl = `intent://id.twitch.tv/oauth2/authorize?${params.toString()}#Intent;scheme=https;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(authUrl)};end;`;
+        window.location.href = intentUrl;
+        setTimeout(() => {
+          window.location.href = authUrl;
+        }, 500);
+      } else {
+        window.location.assign(authUrl);
+      }
     }
 
     function twitchLogout() {
-        clearAuth();
-        setNickUIAuthed('');
-        refreshBalanceForAuthed();
+      clearAuth();
+      setNickUIAuthed('');
+      refreshBalanceForAuthed();
     }
 
-    function updateOrderGateUI() {
-        const authed = !!getKnownNick();
-        const intro = document.getElementById('orderIntro');
-        const help = document.getElementById('orderHelp');
-        const card = document.getElementById('orderCard');
-        if (intro) {
-            intro.textContent = authed
-                ? 'Напишите мне в ЛС в Telegram — одним кликом из этого сайта.'
-                : 'Для начала авторизуйтесь на твич.';
+    // ----- Telegram Bot API -----
+    const TELEGRAM_BOT_API_URL = 'https://script.google.com/macros/s/AKfycbzn3wvaFYwSWkopLZP1ueRb52pJnbWM7sB2Ay4DOx3FPPvBQITpaLF-cx2hflnZ10-_Xg/exec';
+
+    async function sendOrderToBot({ nick, item, price, comment }) {
+      try {
+        const res = await fetch(TELEGRAM_BOT_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({
+            nick: nick || 'Не указан',
+            item: item || 'Не указано',
+            price: price || '—',
+            comment: comment || 'Нет'
+          })
+        });
+
+        const text = await res.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          return { ok: false, error: 'Неверный формат ответа сервера', raw: text };
         }
-        if (help) help.classList.toggle('hidden', !authed);
-        if (card) card.classList.toggle('hidden', !authed);
+        return data;
+      } catch (e) {
+        return { ok: false, error: String(e) };
+      }
     }
 
-    function parsePickedPrice(str) {
-        const s = String(str || '');
-        const m = s.match(/\b(\d{2,7})\b\s*🪙?/);
-        if (!m) return NaN;
-        return Number(m[1]);
+    // ----- Order functions -----
+    function showInline(type, text) {
+      const inlineMsg = $('#inlineMsg');
+      if (!inlineMsg) return;
+
+      inlineMsg.classList.remove('hidden');
+      inlineMsg.classList.remove('bg-emerald-50/60', 'border-emerald-200/70', 'text-emerald-800');
+      inlineMsg.classList.remove('bg-rose-50/60', 'border-rose-200/70', 'text-rose-700');
+      inlineMsg.classList.remove('bg-amber-50/60', 'border-amber-200/70', 'text-amber-900');
+
+      if (type === 'ok') {
+        inlineMsg.classList.add('bg-emerald-50/60', 'border-emerald-200/70', 'text-emerald-800');
+      } else if (type === 'err') {
+        inlineMsg.classList.add('bg-rose-50/60', 'border-rose-200/70', 'text-rose-700');
+      } else {
+        inlineMsg.classList.add('bg-amber-50/60', 'border-amber-200/70', 'text-amber-900');
+      }
+      inlineMsg.textContent = text;
     }
 
-    function showOrderForm() {
-        $('#orderFormContent')?.classList.remove('hidden');
-        $('#orderProcessing')?.classList.add('hidden');
-        $('#orderSuccess')?.classList.add('hidden');
-        $('#orderError')?.classList.add('hidden');
+    function hideInline() {
+      const inlineMsg = $('#inlineMsg');
+      if (inlineMsg) {
+        inlineMsg.classList.add('hidden');
+        inlineMsg.textContent = '';
+      }
     }
 
-    function showOrderProcessing(text = '⏳ Обрабатываем заказ...', hint = 'Проверяем баланс и отправляем в Telegram') {
-        $('#orderFormContent')?.classList.add('hidden');
-        $('#orderProcessing')?.classList.remove('hidden');
-        $('#orderSuccess')?.classList.add('hidden');
-        $('#orderError')?.classList.add('hidden');
-        const processingText = $('#processingText');
-        const processingHint = $('#processingHint');
-        if (processingText) processingText.textContent = text;
-        if (processingHint) processingHint.textContent = hint;
+    function setProgress(on, text = '', sub = '') {
+      const progressArea = $('#progressArea');
+      const progressText = $('#progressText');
+      const progressSub = $('#progressSub');
+      const spinner = $('#spinner');
+
+      if (progressArea) progressArea.classList.toggle('hidden', !on);
+      if (spinner) spinner.classList.toggle('hidden', !on);
+      if (progressText) progressText.textContent = text;
+      if (progressSub) progressSub.textContent = sub;
     }
 
-    function showOrderSuccess() {
-        $('#orderFormContent')?.classList.add('hidden');
-        $('#orderProcessing')?.classList.add('hidden');
-        $('#orderSuccess')?.classList.remove('hidden');
-        $('#orderError')?.classList.add('hidden');
+    function setOrderEnabled(enabled) {
+      const btnOrder = $('#btnOrder');
+      const commentEl = $('#comment');
+
+      if (btnOrder) {
+        btnOrder.disabled = !enabled;
+        btnOrder.classList.toggle('opacity-60', !enabled);
+        btnOrder.classList.toggle('cursor-not-allowed', !enabled);
+      }
+      if (commentEl) commentEl.disabled = !enabled;
     }
 
-    function showOrderError(title = 'Ошибка отправки', text = 'Не удалось отправить заказ') {
-        $('#orderFormContent')?.classList.add('hidden');
-        $('#orderProcessing')?.classList.add('hidden');
-        $('#orderSuccess')?.classList.add('hidden');
-        $('#orderError')?.classList.remove('hidden');
-        const errorTitle = $('#errorTitle');
-        const errorText = $('#errorText');
-        if (errorTitle) errorTitle.textContent = title;
-        if (errorText) errorText.textContent = text;
+    function resetOrderUI() {
+      hideInline();
+      setProgress(false);
+      const btnOrderAgain = $('#btnOrderAgain');
+      const btnOrder = $('#btnOrder');
+      if (btnOrderAgain) btnOrderAgain.classList.add('hidden');
+      if (btnOrder) btnOrder.classList.remove('hidden');
+      setOrderEnabled(true);
     }
 
-    document.getElementById('orderAgain')?.addEventListener('click', showOrderForm);
-    document.getElementById('orderRetry')?.addEventListener('click', showOrderForm);
+    // ----- Event Listeners -----
+    function initEventListeners() {
+      // Calculator
+      $('#clipsMinus')?.addEventListener('click', () => {
+        const i = $('#clipsInput');
+        if (!i) return;
+        i.value = Math.max(0, (Number(i.value) || 0) - 1);
+        updateCalc();
+      });
 
-    document.getElementById('placeOrder')?.addEventListener('click', async () => {
-        clearOrderMsg();
+      $('#clipsPlus')?.addEventListener('click', () => {
+        const i = $('#clipsInput');
+        if (!i) return;
+        i.value = (Number(i.value) || 0) + 1;
+        updateCalc();
+      });
+
+      $('#clipsInput')?.addEventListener('input', updateCalc);
+      $('#openCalc')?.addEventListener('click', openCalcModal);
+      $('#closeCalc')?.addEventListener('click', closeCalcModal);
+      $('#calcModal .absolute')?.addEventListener('click', closeCalcModal);
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !$('#calcModal')?.classList.contains('hidden')) {
+          closeCalcModal();
+        }
+      });
+
+      $('#copyCalc')?.addEventListener('click', async () => {
+        const c = Number($('#clipsInput')?.value) || 0;
+        const t = $('#calcResult')?.textContent || '';
+        const ok = await copyText(`Клипов: ${c}. Итого баллов: ${t} 🙂`);
+        if (ok) {
+          const toastEl = document.createElement('div');
+          toastEl.className = 'toast glass border border-white/60 rounded-2xl px-4 py-3 shadow-[0_18px_55px_rgba(18,28,55,.14)] bg-emerald-50/60 text-emerald-800 max-w-[92vw]';
+          toastEl.textContent = 'Скопировано ✅';
+          $('#toastHost').appendChild(toastEl);
+          setTimeout(() => {
+            toastEl.style.opacity = '0';
+            toastEl.style.transform = 'translateY(10px)';
+            toastEl.style.transition = 'opacity .2s ease, transform .2s ease';
+            setTimeout(() => toastEl.remove(), 220);
+          }, 1300);
+        }
+      });
+
+      // Copy balance commands
+      $('#copyBalanceCmd')?.addEventListener('click', async () => {
+        const ok = await copyText('!Баланс');
+        if (ok) {
+          const toastEl = document.createElement('div');
+          toastEl.className = 'toast glass border border-white/60 rounded-2xl px-4 py-3 shadow-[0_18px_55px_rgba(18,28,55,.14)] bg-emerald-50/60 text-emerald-800 max-w-[92vw]';
+          toastEl.textContent = 'Скопировано ✅';
+          $('#toastHost').appendChild(toastEl);
+          setTimeout(() => {
+            toastEl.style.opacity = '0';
+            toastEl.style.transform = 'translateY(10px)';
+            toastEl.style.transition = 'opacity .2s ease, transform .2s ease';
+            setTimeout(() => toastEl.remove(), 220);
+          }, 1300);
+        }
+      });
+
+      $('#btnCopyBalance')?.addEventListener('click', async () => {
+        const ok = await copyText('!Баланс');
+        if (ok) {
+          const toastEl = document.createElement('div');
+          toastEl.className = 'toast glass border border-white/60 rounded-2xl px-4 py-3 shadow-[0_18px_55px_rgba(18,28,55,.14)] bg-emerald-50/60 text-emerald-800 max-w-[92vw]';
+          toastEl.textContent = 'Скопировано ✅';
+          $('#toastHost').appendChild(toastEl);
+          setTimeout(() => {
+            toastEl.style.opacity = '0';
+            toastEl.style.transform = 'translateY(10px)';
+            toastEl.style.transition = 'opacity .2s ease, transform .2s ease';
+            setTimeout(() => toastEl.remove(), 220);
+          }, 1300);
+        }
+      });
+
+      // Product selection
+      $$('.productCard').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const title = btn.dataset.title || 'Товар';
+          const cost = btn.dataset.cost || '0';
+          setSelectedProduct({ title, cost });
+        });
+      });
+
+      // Auth buttons
+      $('#btnLogin')?.addEventListener('click', twitchLogin);
+      $('#btnLogout')?.addEventListener('click', twitchLogout);
+      $('#btnRefreshBalance')?.addEventListener('click', refreshBalanceForAuthed);
+
+      // Order form
+      $('#btnOrderAgain')?.addEventListener('click', () => {
+        $('#comment').value = '';
+        resetOrderUI();
+        const toastEl = document.createElement('div');
+        toastEl.className = 'toast glass border border-white/60 rounded-2xl px-4 py-3 shadow-[0_18px_55px_rgba(18,28,55,.14)] bg-emerald-50/60 text-emerald-800 max-w-[92vw]';
+        toastEl.textContent = 'Можно оформить ещё один заказ';
+        $('#toastHost').appendChild(toastEl);
+        setTimeout(() => {
+          toastEl.style.opacity = '0';
+          toastEl.style.transform = 'translateY(10px)';
+          toastEl.style.transition = 'opacity .2s ease, transform .2s ease';
+          setTimeout(() => toastEl.remove(), 220);
+        }, 1300);
+      });
+
+      $('#orderForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        hideInline();
+
         const nick = getKnownNick();
         const displayName = getKnownDisplayName();
 
         if (!nick) {
-            setOrderMsg({
-                type: 'warn',
-                title: 'Нужно авторизоваться на Twitch',
-                text: 'Чтобы оформить заказ, сначала войди через Twitch в блоке «Проверка баланса».',
-                actions: [{ label: 'Войти через Twitch', onClick: () => twitchLogin() }]
-            });
-            return;
+          showInline('err', 'Сначала войди через Twitch, чтобы оформить заказ.');
+          return;
         }
+
         if (!picked) {
-            setOrderMsg({ type: 'warn', title: 'Выбери товар', text: 'Сначала выбери награду в разделе «Товары».' });
-            return;
+          showInline('err', 'Сначала выбери товар в разделе «Товары».');
+          return;
         }
 
-        const spend = parsePickedPrice(picked);
-
-        showOrderProcessing('⏳ Обрабатываем заказ...', 'Проверяем баланс и отправляем в Telegram');
+        const spend = pickedCost;
 
         try {
-            if (SPEND_ENABLED && Number.isFinite(spend) && spend > 0) {
-                showOrderProcessing('💰 Проверяем баланс...', 'Убеждаемся что хватает баллов');
-                const res = await findBalanceByNick(nick);
-                if (!res.found) {
-                    showOrderError('У вас 0 баллов 😢', 'Похоже, тебя нет в таблице. Напиши Ями, чтобы тебя добавили.');
-                    return;
-                }
-                const currentBalance = Number.isFinite(res.pointsNum) ? Math.round(res.pointsNum) : 0;
-                if (currentBalance < spend) {
-                    showOrderError('Недостаточно баллов 😢', `Для этого заказа нужно ${spend} 🪙, а у тебя ${currentBalance} 🪙.`);
-                    return;
-                }
+          setOrderEnabled(false);
+          setProgress(true, '⏳ Обрабатываем заказ...', 'Проверяем баланс и отправляем в Telegram');
+
+          // СНАЧАЛА проверяем баланс (если нужно списание)
+          if (SPEND_ENABLED && Number.isFinite(spend) && spend > 0) {
+            setProgress(true, '💰 Проверяем баланс...', 'Убеждаемся что хватает баллов');
+            const res = await findBalanceByNick(nick);
+            if (!res.found) {
+              setProgress(false);
+              showInline('err', 'У вас 0 баллов 😢. Похоже, тебя нет в таблице. Напиши Ями, чтобы тебя добавили.');
+              setOrderEnabled(true);
+              return;
             }
-
-            showOrderProcessing('📨 Отправляем в Telegram...', 'Ваш заказ отправляется Ями');
-            const comment = ($('#comment').value || '').trim();
-            const priceText = Number.isFinite(spend) && spend > 0 ? `${spend} 🪙` : '—';
-
-            const result = await sendOrderToBot({
-                nick: displayName || nick,
-                item: picked,
-                price: priceText,
-                comment: comment || 'Нет'
-            });
-
-            if (!result.ok) {
-                showOrderError('Ошибка отправки', 'Не удалось отправить заказ. Попробуй ещё раз или напиши Ями напрямую в Telegram: @YammyTanuki');
-                return;
+            const currentBalance = Number.isFinite(res.pointsNum) ? Math.round(res.pointsNum) : 0;
+            if (currentBalance < spend) {
+              setProgress(false);
+              showInline('err', `Недостаточно баллов 😢. Для этого заказа нужно ${spend} 🙂, а у тебя ${currentBalance} 🙂.`);
+              setOrderEnabled(true);
+              return;
             }
+          }
 
-            if (SPEND_ENABLED && Number.isFinite(spend) && spend > 0) {
-                showOrderProcessing('💰 Списываем баллы...', 'Обновляем ваш баланс');
-                const spendRes = await spendPoints({ nick, amount: spend, item: picked, comment });
-                if (spendRes.ok) {
-                    await refreshBalanceForAuthed();
-                } else {
-                    console.warn('Failed to spend points:', spendRes);
-                }
-            }
+          // Если баланса достаточно - отправляем в Telegram
+          setProgress(true, '📨 Отправляем в Telegram...', 'Ваш заказ отправляется Ями');
+          const comment = ($('#comment').value || '').trim();
+          const priceText = Number.isFinite(spend) && spend > 0 ? `${spend} 🙂` : '—';
 
-            showOrderSuccess();
-            $('#comment').value = '';
-            picked = '';
-            $('#picked').textContent = 'Пока ничего';
-        } catch (e) {
-            showOrderError('Ошибка связи', 'Не удалось связаться с сервером. Попробуй ещё раз.');
-            console.error('Order error:', e);
-        }
-    });
+          const result = await sendOrderToBot({
+            nick: displayName || nick,
+            item: picked,
+            price: priceText,
+            comment: comment || 'Нет'
+          });
 
-    // === INIT BALANCE UI ===
-    function initBalanceUI() {
-        initCopyButtons();
-        handleTwitchOAuthCallback();
+          if (!result.ok) {
+            setProgress(false);
+            showInline('err', 'Не удалось отправить заказ. Попробуй ещё раз или напиши Ями напрямую в Telegram: @YammyTanuki');
+            setOrderEnabled(true);
+            return;
+          }
 
-        document.getElementById('twitchLoginBtn')?.addEventListener('click', twitchLogin);
-        document.getElementById('twitchLogoutBtn')?.addEventListener('click', twitchLogout);
-        document.getElementById('refreshBalance')?.addEventListener('click', () => refreshBalanceForAuthed());
-
-        const auth = getAuth();
-        const remember = document.getElementById('rememberNick');
-        if (auth?.login) {
-            if (remember) {
-                remember.checked = !!localStorage.getItem(AUTH_STORAGE_KEY);
-            }
-            setNickUIAuthed(auth.display_name || auth.login);
-            setTimeout(() => refreshBalanceForAuthed(), 250);
-        } else {
-            setNickUIAuthed('');
-            refreshBalanceForAuthed();
-        }
-
-        remember?.addEventListener('change', (e) => {
-            const a = getAuth();
-            if (!a?.login) return;
-            if (e.target.checked) {
-                try {
-                    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(a));
-                } catch (err) { }
-                try {
-                    sessionStorage.removeItem(AUTH_STORAGE_KEY);
-                } catch (err) { }
+          // Если отправка успешна - списываем баллы
+          if (SPEND_ENABLED && Number.isFinite(spend) && spend > 0) {
+            setProgress(true, '💰 Списываем баллы...', 'Обновляем ваш баланс');
+            const spendRes = await spendPoints({ nick, amount: spend, item: picked, comment });
+            if (spendRes.ok) {
+              await refreshBalanceForAuthed();
             } else {
-                try {
-                    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(a));
-                } catch (err) { }
-                try {
-                    localStorage.removeItem(AUTH_STORAGE_KEY);
-                } catch (err) { }
+              // Если списание провалилось (но отправка успешна) - не критично, Ями проверит вручную
+              console.warn('Failed to spend points:', spendRes);
             }
-        });
+          }
 
-        updateOrderGateUI();
+          // Успех!
+          setProgress(false);
+          $('#btnOrder').classList.add('hidden');
+          $('#btnOrderAgain').classList.remove('hidden');
+          showInline('ok', 'Заказ успешно отправлен! Ями получил твой заказ 😊');
+          $('#comment').value = '';
+          picked = '';
+          pickedCost = null;
+          $('#selectedProductLabel').textContent = 'не выбран';
+          $('#orderProduct').textContent = 'Не выбран';
+          $('#orderCost').textContent = '—';
+
+        } catch (e) {
+          setProgress(false);
+          setOrderEnabled(true);
+          const message = (e && e.message) ? e.message : 'Неизвестная ошибка';
+          showInline('err', `✖ Ошибка: ${message}\nПопробуй снова.`);
+        }
+      });
+
+      // Scroll to top
+      $('#toTop')?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
     }
 
-    // === REVEAL ===
-    try {
+    // ----- Reveal animations -----
+    function initReveal() {
+      try {
         const force = document.documentElement.classList.contains('no-io');
         const isSmallOrTablet = window.matchMedia('(max-width: 1024px)').matches;
         if (!force && !isSmallOrTablet && 'IntersectionObserver' in window) {
-            const io = new IntersectionObserver((entries) => {
-                for (const e of entries) {
-                    if (e.isIntersecting) {
-                        e.target.classList.add('in');
-                        io.unobserve(e.target);
-                    }
-                }
-            }, { threshold: 0.12 });
-
-            $$('.reveal').forEach(el => io.observe(el));
+          const io = new IntersectionObserver((entries) => {
+            for (const e of entries) {
+              if (e.isIntersecting) {
+                e.target.classList.add('is-in');
+                io.unobserve(e.target);
+              }
+            }
+          }, { threshold: 0.12 });
+          $$('.reveal').forEach(el => io.observe(el));
         } else {
-            $$('.reveal').forEach(el => el.classList.add('in'));
+          $$('.reveal').forEach(el => el.classList.add('is-in'));
         }
-    } catch (err) { }
-
-    // === DECORATIVE EFFECTS ===
-    const isMobile = window.matchMedia('(max-width: 640px)').matches;
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const inApp = document.documentElement.classList.contains('no-io');
-
-    if (!isMobile && !reduced && !inApp) {
-        const cloudsRoot = document.getElementById('clouds');
-        const starsRoot = document.getElementById('stars');
-
-        if (cloudsRoot) {
-            function addCloud({ top, duration, delay, scale, opacity }) {
-                const c = document.createElement('div');
-                c.className = 'cloud';
-                c.style.top = top + 'vh';
-                c.style.animationDuration = duration + 's';
-                c.style.animationDelay = (-delay) + 's';
-                c.style.transform = `translate3d(-120%,0,0) scale(${scale})`;
-                c.style.opacity = opacity;
-                cloudsRoot.appendChild(c);
-            }
-            const cloudCount = 5;
-            for (let i = 0; i < cloudCount; i++) {
-                addCloud({
-                    top: 6 + Math.random() * 40,
-                    duration: 52 + Math.random() * 60,
-                    delay: Math.random() * 80,
-                    scale: 0.7 + Math.random() * 0.9,
-                    opacity: 0.34 + Math.random() * 0.34
-                });
-            }
-        }
-
-        if (starsRoot) {
-            function addStar() {
-                const s = document.createElement('div');
-                s.className = 'star';
-                const left = Math.random() * 100;
-                const drift = (Math.random() * 2 - 1) * 70;
-                const scale = 0.6 + Math.random() * 1.2;
-                const opacity = 0.18 + Math.random() * 0.48;
-                const dur = 8 + Math.random() * 13;
-                const delay = Math.random() * dur;
-                s.style.left = left + 'vw';
-                s.style.setProperty('--x', '0px');
-                s.style.setProperty('--drift', drift + 'px');
-                s.style.setProperty('--s', scale);
-                s.style.setProperty('--o', opacity);
-                s.style.animationDuration = dur + 's';
-                s.style.animationDelay = (-delay) + 's';
-                s.style.top = '-12vh';
-                const sz = (8 + Math.random() * 10);
-                s.style.width = sz + 'px';
-                s.style.height = sz + 'px';
-                starsRoot.appendChild(s);
-                setTimeout(() => {
-                    s.remove();
-                }, (dur + 2) * 1000);
-            }
-            const initial = Math.min(55, Math.max(35, Math.floor(window.innerWidth / 22)));
-            for (let i = 0; i < initial; i++) addStar();
-            setInterval(() => {
-                for (let i = 0; i < 2; i++) addStar();
-            }, 950);
-        }
+      } catch (err) {
+        // Fallback
+        $$('.reveal').forEach(el => el.classList.add('is-in'));
+      }
     }
 
-    document.getElementById('toTop')?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    // ----- Decorative effects (desktop only) -----
+    function initDecorativeEffects() {
+      const isMobile = window.matchMedia('(max-width: 640px)').matches;
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const inApp = document.documentElement.classList.contains('no-io');
 
-    // === INIT ALL ===
-    function initCriticalUI() {
-        initCalculator();
-        initGoods();
+      if (!isMobile && !reduced && !inApp) {
+        // Petals effect
+        const petalsHost = $('#petals');
+        if (petalsHost) {
+          let running = true;
+          const maxOnScreen = 18;
+
+          function rand(min, max) {
+            return Math.random() * (max - min) + min;
+          }
+
+          function createPetal() {
+            const el = document.createElement("div");
+            const size = rand(10, 18);
+            const startX = rand(0, window.innerWidth);
+            const drift = rand(-60, 60);
+            const dur = rand(7, 12);
+            const rot = rand(0, 360);
+            const hue = rand(330, 360);
+            const opacity = rand(0.25, 0.55);
+
+            el.style.position = "absolute";
+            el.style.left = `${startX}px`;
+            el.style.top = `-30px`;
+            el.style.width = `${size}px`;
+            el.style.height = `${size * 0.75}px`;
+            el.style.borderRadius = "999px 999px 999px 0";
+            el.style.transform = `rotate(${rot}deg)`;
+            el.style.opacity = opacity.toFixed(2);
+            el.style.background = `hsl(${hue} 85% 70% / .9)`;
+            el.style.boxShadow = "0 10px 25px rgba(0,0,0,.08)";
+            el.style.filter = "blur(.2px)";
+            el.style.pointerEvents = "none";
+
+            const keyframes = [
+              { transform: `translate3d(0,0,0) rotate(${rot}deg)`, offset: 0 },
+              { transform: `translate3d(${drift * 0.6}px, ${window.innerHeight * 0.45}px, 0) rotate(${rot + 160}deg)`, offset: 0.55 },
+              { transform: `translate3d(${drift}px, ${window.innerHeight + 80}px, 0) rotate(${rot + 340}deg)`, offset: 1 }
+            ];
+
+            const anim = el.animate(keyframes, { duration: dur * 1000, easing: "linear", iterations: 1 });
+            anim.onfinish = () => el.remove();
+            return el;
+          }
+
+          function tick() {
+            if (!running) return;
+            const count = petalsHost.childElementCount;
+            if (count < maxOnScreen) {
+              const add = Math.min(2, maxOnScreen - count);
+              for (let i = 0; i < add; i++) petalsHost.appendChild(createPetal());
+            }
+            setTimeout(tick, rand(450, 900));
+          }
+
+          tick();
+          document.addEventListener("visibilitychange", () => {
+            running = !document.hidden;
+            if (running) tick();
+          });
+        }
+
+        // Floaties animation
+        const floaties = $$(".floaty");
+        if (floaties.length > 0) {
+          let t = 0;
+          function loop() {
+            t += 0.006;
+            floaties.forEach((el, i) => {
+              const amp = 10 + i * 4;
+              const x = Math.sin(t + i) * amp;
+              const y = Math.cos(t + i * 1.3) * amp;
+              el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+            });
+            requestAnimationFrame(loop);
+          }
+          requestAnimationFrame(loop);
+        }
+      }
     }
 
-    function initAllAfterDom() {
-        initBalanceUI();
+    // ----- Initialize everything -----
+    function init() {
+      // Handle Telegram warning
+      const ua = (navigator.userAgent || '').toLowerCase();
+      const isTelegramInApp = /Telegram/i.test(ua);
+      if (isTelegramInApp) {
+        $('#tgWarning')?.classList.remove('hidden');
+      }
+
+      // Handle OAuth callback
+      handleTwitchOAuthCallback();
+
+      // Restore auth if exists
+      const auth = getAuth();
+      const remember = $('#rememberNick');
+      if (auth?.login) {
+        if (remember) {
+          remember.checked = !!localStorage.getItem(AUTH_STORAGE_KEY);
+        }
+        // Сначала установим UI (скроем кнопку "Войти"), потом обновим баланс
+        setNickUIAuthed(auth.display_name || auth.login);
+        setTimeout(() => refreshBalanceForAuthed(), 250);
+      } else {
+        setNickUIAuthed('');
+        refreshBalanceForAuthed();
+      }
+
+      // Wire up event listeners
+      initEventListeners();
+
+      // Initialize reveal animations
+      initReveal();
+
+      // Initialize decorative effects
+      initDecorativeEffects();
+
+      // Create top anchor
+      if (!$('#top')) {
+        const a = document.createElement("div");
+        a.id = "top";
+        a.style.position = "absolute";
+        a.style.top = "0";
+        a.style.left = "0";
+        a.style.width = "1px";
+        a.style.height = "1px";
+        a.style.pointerEvents = "none";
+        document.body.prepend(a);
+      }
     }
 
+    // Start initialization
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            initCriticalUI();
-            initAllAfterDom();
-        }, { once: true });
+      document.addEventListener('DOMContentLoaded', init, { once: true });
     } else {
-        initCriticalUI();
-        initAllAfterDom();
+      init();
     }
-</script>
-
+  </script>
 </body>
 </html>
