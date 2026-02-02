@@ -17,7 +17,6 @@
       --ring: 0 0 0 1px rgba(255,255,255,.55), 0 0 0 6px rgba(255,255,255,.18);
     }
 
-    /* Градиентный фон + мягкий "свет" */
     body{
       background:
         radial-gradient(1200px 800px at 10% 10%, rgba(100,150,220,.30), transparent 60%),
@@ -27,7 +26,6 @@
       min-height: 100vh;
     }
 
-    /* glassmorphism карточки */
     .glass{
       background: var(--glass-bg);
       border: 1.5px solid var(--glass-brd);
@@ -62,7 +60,6 @@
       z-index:-1;
     }
 
-    /* маленькие "плывущие" пятна (только десктоп включим JS-ом) */
     .floaty{
       position: absolute;
       border-radius: 999px;
@@ -72,7 +69,6 @@
       pointer-events: none;
     }
 
-    /* Reveal (анимации появления — включим на десктопе) */
     .reveal{
       opacity: 0;
       transform: translateY(14px);
@@ -83,14 +79,12 @@
       transform: translateY(0);
     }
 
-    /* Модалка */
     .modal-backdrop{
       background: rgba(20, 30, 55, .35);
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
     }
 
-    /* Toast */
     .toast{
       animation: toastIn .22s ease-out;
     }
@@ -99,7 +93,6 @@
       to{ transform: translateY(0); opacity: 1; }
     }
 
-    /* Падающие лепестки — контейнер (реальная анимация в JS, только desktop) */
     #petals{
       position: fixed;
       inset: 0;
@@ -108,14 +101,12 @@
       z-index: 0;
     }
 
-    /* Уважение prefers-reduced-motion */
     @media (prefers-reduced-motion: reduce){
       .reveal{ transition: none !important; }
     }
   </style>
 
   <script>
-    /* Tailwind config (минимально) */
     tailwind.config = {
       theme: {
         extend: {
@@ -129,7 +120,6 @@
 </head>
 
 <body class="text-slate-900">
-  <!-- Декоративные слои -->
   <div id="petals" aria-hidden="true"></div>
 
   <div class="pointer-events-none fixed inset-0 -z-10">
@@ -138,7 +128,6 @@
     <div class="floaty hidden lg:block" style="bottom:12%;left:18%;width:300px;height:300px;background:rgba(100,220,255,.15);box-shadow:0 0 120px rgba(100,220,255,.1)"></div>
   </div>
 
-  <!-- Telegram встроенный браузер предупреждение (показывается только в Telegram) -->
   <div id="tgWarning" class="hidden mx-auto max-w-6xl px-4 pt-3">
     <div class="glass rounded-2xl p-4 border border-amber-200/60 bg-amber-50/60">
       <div class="flex items-start gap-3">
@@ -151,9 +140,7 @@
     </div>
   </div>
 
-  <!-- Main -->
   <main class="relative z-10 mx-auto max-w-6xl px-4 pb-16 pt-6 md:pt-10">
-    <!-- Hero -->
     <section class="reveal">
       <div class="glass glow rounded-3xl p-6 md:p-8">
         <h1 class="text-2xl md:text-3xl font-bold tracking-tight">
@@ -163,7 +150,6 @@
           Здесь ты можешь заказать контент за баллы, которые заработал(а) на клипах.
         </p>
 
-        <!-- Quick info cards -->
         <div class="mt-5 grid sm:grid-cols-3 gap-3">
           <div class="glass rounded-2xl p-4 border border-white/60">
             <div class="text-2xl mb-2">🎬</div>
@@ -193,11 +179,9 @@
       </div>
     </section>
 
-    <!-- Rules + Balance (united block) -->
     <section id="rules" class="mt-8 md:mt-10">
       <div class="glass glow rounded-3xl p-6 md:p-8 reveal">
         <div class="grid lg:grid-cols-[1fr_320px] gap-8 items-start">
-          <!-- Rules left side -->
           <div>
             <h2 class="text-xl md:text-2xl font-bold">📌 ПРАВИЛА НАЧИСЛЕНИЯ БАЛЛОВ</h2>
             <p class="mt-2 text-slate-600">Баллы начисляются за клипы. Ниже — правила, мини‑калькулятор и витрина товаров.</p>
@@ -238,7 +222,6 @@
             </div>
           </div>
 
-          <!-- Balance right side -->
           <aside class="glass glow rounded-3xl p-5 border border-white/60">
             <div class="flex items-center justify-between gap-3 mb-4">
               <h3 class="text-lg font-bold">Баланс</h3>
@@ -250,7 +233,6 @@
               </a>
             </div>
             
-            <!-- Auth status block -->
             <div id="authStatusBlock" class="glass rounded-2xl p-4 border border-white/60 mb-3">
               <div class="text-xs text-slate-600">Статус</div>
               <div id="authStatus" class="font-semibold truncate">Не авторизован(а)</div>
@@ -259,7 +241,6 @@
               </div>
             </div>
 
-            <!-- Login button -->
             <div id="loginButtonBlock" class="mb-3">
               <button id="btnLogin"
                       class="w-full px-4 py-2 rounded-xl font-medium glass hover:bg-white/60 transition border border-white/60">
@@ -267,9 +248,7 @@
               </button>
             </div>
 
-            <!-- Balance info (hidden until logged in) -->
             <div id="balanceInfoBlock" class="hidden space-y-3">
-              <!-- Nick with logout -->
               <div class="glass rounded-2xl p-4 border border-white/60">
                 <div class="flex items-center justify-between gap-2">
                   <div>
@@ -283,7 +262,6 @@
                 </div>
               </div>
 
-              <!-- Balance -->
               <div class="glass rounded-2xl p-4 border border-white/60">
                 <div class="text-xs text-slate-600">Баллы</div>
                 <div id="balanceValue" class="text-2xl font-extrabold tracking-tight">—</div>
@@ -293,7 +271,6 @@
                 </div>
               </div>
 
-              <!-- Buttons -->
               <div class="flex flex-wrap gap-2">
                 <button id="btnRefreshBalance"
                         class="flex-1 px-4 py-2 rounded-xl bg-white/75 hover:bg-white transition border border-white/70 font-medium">
@@ -306,7 +283,6 @@
                 </button>
               </div>
 
-              <!-- Error -->
               <div id="balanceError" class="hidden glass rounded-2xl p-4 border border-rose-200/70 bg-rose-50/60 text-sm text-rose-700">
                 Ошибка
               </div>
@@ -316,7 +292,6 @@
       </div>
     </section>
 
-    <!-- Products -->
     <section id="products" class="mt-8 md:mt-10">
       <div class="glass glow rounded-3xl p-6 md:p-8 reveal">
         <div class="flex items-end justify-between gap-4 flex-wrap">
@@ -331,9 +306,7 @@
           </div>
         </div>
 
-        <!-- Product groups -->
         <div class="mt-6 grid lg:grid-cols-2 gap-4">
-          <!-- Memes -->
           <div class="glass rounded-3xl p-5 border border-white/60 hover:bg-white/60 transition reveal">
             <div class="flex items-center justify-between gap-3">
               <div>
@@ -360,7 +333,6 @@
             </div>
           </div>
 
-          <!-- Movie/Anime -->
           <div class="glass rounded-3xl p-5 border border-white/60 hover:bg-white/60 transition reveal">
             <div class="flex items-center justify-between gap-3">
               <div>
@@ -388,7 +360,6 @@
             </div>
           </div>
 
-          <!-- 18+ -->
           <div class="glass rounded-3xl p-5 border border-white/60 hover:bg-white/60 transition reveal">
             <div class="flex items-center justify-between gap-3">
               <div>
@@ -408,7 +379,6 @@
             </div>
           </div>
 
-          <!-- Gamer -->
           <div class="glass rounded-3xl p-5 border border-white/60 hover:bg-white/60 transition reveal">
             <div class="flex items-center justify-between gap-3">
               <div>
@@ -429,7 +399,6 @@
             </div>
           </div>
 
-          <!-- Ultimate -->
           <div class="glass rounded-3xl p-5 border border-white/60 hover:bg-white/60 transition lg:col-span-2 reveal">
             <div class="flex items-center justify-between gap-3 flex-wrap">
               <div>
@@ -452,7 +421,6 @@
       </div>
     </section>
 
-    <!-- How to + Order form -->
     <section id="howto" class="mt-8 md:mt-10 grid lg:grid-cols-2 gap-6 items-start">
       <div class="glass glow rounded-3xl p-6 md:p-8 reveal">
         <h2 class="text-xl md:text-2xl font-bold">Как оформить заказ?</h2>
@@ -509,7 +477,6 @@
           </button>
         </form>
 
-        <!-- Progress area -->
         <div id="progressArea" class="hidden mt-5 glass rounded-2xl p-4 border border-white/60">
           <div class="flex items-center gap-3">
             <div id="spinner" class="h-5 w-5 rounded-full border-2 border-slate-900/25 border-t-slate-900 animate-spin"></div>
@@ -520,7 +487,6 @@
       </div>
     </section>
 
-    <!-- Footer -->
     <footer class="mt-10">
       <div class="glass glow rounded-3xl p-6 md:p-8 text-sm text-slate-700 reveal">
         <div class="flex items-center justify-between gap-3 flex-wrap">
@@ -535,7 +501,6 @@
     </footer>
   </main>
 
-  <!-- Calculator Modal -->
   <div id="calcModal" class="hidden fixed inset-0 z-50">
     <div class="absolute inset-0 modal-backdrop"></div>
 
@@ -578,23 +543,18 @@
     </div>
   </div>
 
-  <!-- Toast container -->
   <div id="toastHost" class="fixed z-[60] bottom-4 left-0 right-0 px-4 flex flex-col items-center gap-2"></div>
 
-  <!-- JS PART 2/3 — UI + AUTH + CALC -->
   <script>
 (() => {
   "use strict";
 
-  /* --------- Конфиг (плейсхолдеры оставляем) --------- */
   const CONFIG = {
     TWITCH_CLIENT_ID: "njg6lnlpkp9h8s3pdkwzl7byhju06n",
     REDIRECT_URI: window.location.origin + window.location.pathname,
-    ANDROID_INTENT_FORCE_BROWSER: true,
-    TELEGRAM_LINK: "https://t.me/YOUR_USERNAME_OR_LINK"
+    ANDROID_INTENT_FORCE_BROWSER: true
   };
 
-  /* --------- Утилиты --------- */
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
@@ -612,7 +572,6 @@
   function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
   window.sleep = sleep;
 
-  /* --------- Toast --------- */
   const toastHost = $("#toastHost");
   function toast(msg, type = "info", ttl = 1900){
     const el = document.createElement("div");
@@ -635,7 +594,6 @@
   }
   window.toast = toast;
 
-  /* --------- Clipboard --------- */
   async function copyText(text){
     try{
       await navigator.clipboard.writeText(text);
@@ -662,13 +620,11 @@
   }
   window.copyText = copyText;
 
-  /* --------- Telegram warning --------- */
   const tgWarning = $("#tgWarning");
   if (isTelegramInApp()){
     tgWarning?.classList.remove("hidden");
   }
 
-  /* --------- Smooth reveal on desktop only --------- */
   function setupReveal(){
     if (!isDesktop() || reduceMotion()) {
       $$(".reveal").forEach(el => el.classList.add("is-in"));
@@ -686,7 +642,6 @@
   }
   setupReveal();
 
-  /* --------- "Плывущие" эффекты --------- */
   function setupFloaties(){
     if (!isDesktop() || reduceMotion()) return;
     const floaties = $$(".floaty");
@@ -705,7 +660,6 @@
   }
   setupFloaties();
 
-  /* --------- Калькулятор баллов --------- */
   const calcModal = $("#calcModal");
   const openCalc = $("#openCalc");
   const closeCalc = $("#closeCalc");
@@ -768,13 +722,8 @@
     await copyText(calcResult.textContent.trim());
   });
 
-  /* --------- Копирование !Баланс --------- */
   $("#copyBalanceCmd")?.addEventListener("click", () => copyText("!Баланс"));
   $("#btnCopyBalance")?.addEventListener("click", () => copyText("!Баланс"));
-
-  /* =========================
-     Twitch OAuth 2.0 (Implicit Flow)
-     ========================= */
 
   const btnLogin = $("#btnLogin");
   const btnLogout = $("#btnLogout");
@@ -792,24 +741,6 @@
   function getStorage(){
     const remember = localStorage.getItem(STORAGE_KEYS.remember) === "1";
     return remember ? localStorage : sessionStorage;
-  }
-
-  function setRemember(flag){
-    localStorage.setItem(STORAGE_KEYS.remember, flag ? "1" : "0");
-    const from = flag ? sessionStorage : localStorage;
-    const to = flag ? localStorage : sessionStorage;
-
-    const token = from.getItem(STORAGE_KEYS.token);
-    const expiresAt = from.getItem(STORAGE_KEYS.expiresAt);
-    const dn = from.getItem(STORAGE_KEYS.displayName);
-
-    if (token) to.setItem(STORAGE_KEYS.token, token);
-    if (expiresAt) to.setItem(STORAGE_KEYS.expiresAt, expiresAt);
-    if (dn) to.setItem(STORAGE_KEYS.displayName, dn);
-
-    from.removeItem(STORAGE_KEYS.token);
-    from.removeItem(STORAGE_KEYS.expiresAt);
-    from.removeItem(STORAGE_KEYS.displayName);
   }
 
   function parseHashParams(){
@@ -990,7 +921,6 @@
   }
   initAuth();
 
-  /* --------- Выбор товаров -> скролл к форме --------- */
   const selectedProductLabel = $("#selectedProductLabel");
   const orderProduct = $("#orderProduct");
   const orderCost = $("#orderCost");
@@ -1028,7 +958,6 @@
 })();
   </script>
 
-  <!-- JS PART 3/3 — BALANCE + ORDERS + PETALS -->
   <script>
 (() => {
   "use strict";
@@ -1039,7 +968,6 @@
   const isDesktop = () => matchMedia("(min-width: 1024px)").matches;
   const reduceMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* ---------- Конфиг ---------- */
   const API = {
     BALANCE_API_URL: "https://script.google.com/macros/s/AKfycbyFH87a4akM1t0ZcXIvszRGMUOhM-qqhaKXOvzh64aybVgzbR0K7YxGL4KW8DCjZscX9Q/exec",
     ORDER_API_URL: "https://script.google.com/macros/s/AKfycbyFH87a4akM1t0ZcXIvszRGMUOhM-qqhaKXOvzh64aybVgzbR0K7YxGL4KW8DCjZscX9Q/exec",
@@ -1047,7 +975,6 @@
     TELEGRAM_CHAT_ID: "5102684150"
   };
 
-  /* ---------- Storage helpers ---------- */
   const STORAGE_KEYS = {
     token: "twitch_access_token",
     expiresAt: "twitch_expires_at",
@@ -1064,16 +991,12 @@
     return window.getSession ? window.getSession() : null;
   }
 
-  /* ---------- Helpers from Part 2 ---------- */
   const toast = window.toast || ((msg) => console.log(msg));
   const copyText = window.copyText || (async (t) => {
     try { await navigator.clipboard.writeText(t); } catch {}
   });
   const sleep = window.sleep || ((ms) => new Promise(r => setTimeout(r, ms)));
 
-  /* =========================
-     Падающие лепестки (desktop only)
-     ========================= */
   const petalsHost = $("#petals");
 
   function rand(min, max){ return Math.random() * (max - min) + min; }
@@ -1142,9 +1065,6 @@
   }
   startPetals();
 
-  /* =========================
-     Баланс: Google Apps Script API
-     ========================= */
   const btnRefresh = $("#btnRefreshBalance");
   const balanceValue = $("#balanceValue");
   const balanceHint = $("#balanceHint");
@@ -1215,9 +1135,6 @@
 
   btnRefresh?.addEventListener("click", fetchBalance);
 
-  /* =========================
-     Заказы: процесс + отправка
-     ========================= */
   const orderForm = $("#orderForm");
   const btnOrder = $("#btnOrder");
   const btnOrderAgain = $("#btnOrderAgain");
@@ -1393,9 +1310,9 @@
       await sleep(450);
       setProgress(true, "💰 Списываем баллы…", "Если сервер настроен — спишет автоматически");
 
-      if (typeof res.new_balance === "number"){
-        lastBalance = res.new_balance;
-        $("#balanceValue").textContent = String(res.new_balance);
+      if (typeof res.after === "number"){
+        lastBalance = res.after;
+        $("#balanceValue").textContent = String(res.after);
       } else {
         if (!res.fallback) {
           lastBalance = Math.max(0, lastBalance - cost);
@@ -1415,13 +1332,12 @@
       setProgress(false);
       setOrderEnabled(true);
 
-      const message = "Что-то пошло не так при отправке заказа. Возможно, нет связи с сервером или временная ошибка сервиса.";
-      showInline("err", `${message}\nПопробуй ещё раз чуть позже.`);
-      toast("Ошибка при оформлении заказа", "err", 2600);
+      const message = (err && err.message) ? err.message : "Неизвестная ошибка";
+      showInline("err", `✖ Ошибка: ${message}\nПопробуй снова.`);
+      toast("Ошибка при оформлении", "err", 2400);
     }
   });
 
-  /* ---------- Кнопка "Наверх" якорь ---------- */
   if (!$("#top")){
     const a = document.createElement("div");
     a.id = "top";
