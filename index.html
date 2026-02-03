@@ -1277,28 +1277,43 @@
             });
             const data = await resp.json().catch(()=> ({}));
             if(!resp.ok || data.ok === false){
-              throw new Error(data.description || `Telegram error: HTTP ${resp.status}`);
+              const hint = (
+                (data.description || '').includes('chat not found')
+                  ? 'Telegram: chat not found. Проверь CHAT_ID: это должен быть ID чата/группы, куда бот уже добавлен. Для группы обычно нужен отрицательный id (например -100...). Также убедись, что ты написал(а) боту /start (если это личка) или добавил(а) бота в группу.'
+                  : ''
+              );
+              throw new Error((data.description || `Telegram error: HTTP ${resp.status}`) + (hint ? `\n\n${hint}` : ''));
             }
           }
           sentVia = 'Telegram напрямую';
 
           // Списание (если настроено)
+          // ВАЖНО: Apps Script часто блокирует CORS preflight на JSON.
+          // Поэтому отправляем как application/x-www-form-urlencoded (simple request).
           if(cfgIsSet(state.cfg.BALANCE_API_URL) && cfgIsSet(state.cfg.SPEND_TOKEN) && Number(item.price) > 0){
+            const body = new URLSearchParams();
+            body.set('payload', JSON.stringify({
+              action: 'spend',
+              token: state.cfg.SPEND_TOKEN || '',
+              nick,
+              amount: Number(item.price) || 0,
+              item: item.title,
+              comment
+            }));
+
             const resp = await fetch(state.cfg.BALANCE_API_URL.trim(), {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                action: 'spend',
-                token: state.cfg.SPEND_TOKEN || '',
-                nick,
-                amount: Number(item.price) || 0,
-                item: item.title,
-                comment
-              })
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+              body
             });
-            const data = await resp.json().catch(()=> ({}));
+
+            // Иногда Apps Script возвращает text/plain — пробуем оба варианта
+            const txt = await resp.text().catch(()=> '');
+            let data = {};
+            try{ data = txt ? JSON.parse(txt) : {}; }catch{ data = {}; }
+
             if(!resp.ok || data.ok === false){
-              throw new Error(data.error || data.reason || `SPEND: HTTP ${resp.status}`);
+              throw new Error(data.error || data.reason || txt || `SPEND: HTTP ${resp.status}`);
             }
             sentVia += ' + списание';
 
