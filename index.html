@@ -208,37 +208,6 @@
         </div>
 
         <div class="lg:col-span-5 grid gap-6">
-          <div class="glass-strong rounded-3xl p-6 sm:p-7 glow">
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <div class="text-sm text-slate-600">Авторизация и баланс</div>
-                <div class="mt-2 flex flex-wrap items-center gap-2">
-                  <div id="authChip" class="glass rounded-2xl px-3 py-2 text-sm flex items-center gap-2">
-                    <span class="inline-flex items-center gap-2">
-                      <span class="w-2.5 h-2.5 rounded-full bg-slate-300" id="authDot"></span>
-                      <span id="authLabel" class="text-slate-700">Не авторизован(а)</span>
-                    </span>
-                  </div>
-                  <div class="flex gap-2">
-                    <button id="btnLogin" class="px-3 py-2 rounded-2xl bg-sky-600 text-white hover:bg-sky-700 transition shadow focus-ring">Войти через Twitch</button>
-                    <button id="btnLogout" class="hidden px-3 py-2 rounded-2xl glass hover:bg-white/50 transition focus-ring">Выйти</button>
-                  </div>
-                </div>
-
-                <div class="mt-4 text-sm text-slate-600">Твой баланс</div>
-                <div class="mt-1 text-3xl font-extrabold tracking-tight"><span id="balanceValue">—</span> <span class="text-xl">🪙</span></div>
-                <div id="balanceHint" class="mt-2 text-sm text-slate-600">Авторизуйся через Twitch, затем нажми «Обновить баланс».</div>
-              </div>
-              <div class="w-12 h-12 rounded-2xl bg-sky-600/10 flex items-center justify-center">🔐</div>
-            </div>
-
-            <div class="mt-4 flex gap-2">
-              <button id="btnRefreshBalance" class="px-4 py-2.5 rounded-2xl bg-white/70 hover:bg-white transition shadow focus-ring flex-1">Обновить баланс</button>
-              <button id="btnOpenSettings" class="px-4 py-2.5 rounded-2xl glass hover:bg-white/50 transition focus-ring">Настройки</button>
-            </div>
-            <div id="balanceStatus" class="mt-3 text-sm"></div>
-          </div>
-
           <div class="glass-strong rounded-3xl p-6 sm:p-7">
             <div class="flex items-start gap-3">
               <div class="w-12 h-12 rounded-2xl bg-indigo-600/10 flex items-center justify-center">⚡</div>
@@ -252,48 +221,119 @@
               </div>
             </div>
           </div>
-
-          <div class="glass rounded-3xl p-6 sm:p-7">
-            <div class="font-bold">Статус конфигурации</div>
-            <div class="mt-2 text-sm text-slate-700 leading-relaxed">
-              В этом демо токены/URL не прописаны.
-              После того как ты пришлёшь мне: <span class="font-semibold">Apps Script URL</span>, <span class="font-semibold">Twitch Client ID</span>, <span class="font-semibold">Redirect URI</span> и (опционально) <span class="font-semibold">Telegram параметры</span> — авторизация/баланс/заказ заработают полностью.
-            </div>
-          </div>
         </div>
       </div>
     </section>
 
     <section id="rules" class="pt-10 sm:pt-14">
-      <div class="grid gap-6 items-start">
-        <div class="glass-strong glow rounded-3xl p-6 sm:p-8">
-          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">📌 Правила начисления баллов</h2>
-          <div class="mt-4 space-y-3 text-slate-700 leading-relaxed">
-            <p>✅ За каждый клип → <span class="font-bold">+50</span> баллов.</p>
-            <p>✅ Если клипов больше одного → добавляется премия <span class="font-bold">+3%</span> по формуле.</p>
-            <div class="glass rounded-2xl p-4">
-              <div class="font-bold">Формула</div>
-              <div class="mt-1 font-mono text-sm bg-white/60 inline-block px-2 py-1 rounded-xl">S = 50×N + 0.03×(50×N)×(N-1)</div>
-              <div class="mt-2 text-sm text-slate-600">S — итог, N — количество клипов</div>
+      <div class="glass-strong glow rounded-3xl p-6 sm:p-8">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">📌 Правила и баланс</h2>
+          <p class="mt-2 text-slate-700 leading-relaxed">
+            Войди через Twitch, чтобы увидеть баланс. Баллы начисляются за клипы по формуле ниже.
+          </p>
+        </div>
+
+        <div class="mt-6 grid lg:grid-cols-12 gap-6 items-stretch">
+          <!-- Left: rules compact cards -->
+          <div class="lg:col-span-7 grid gap-4">
+            <div class="glass rounded-3xl p-5 sm:p-6">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <div class="text-xs uppercase tracking-wider text-slate-600">Правила</div>
+                  <div class="mt-1 text-xl font-extrabold">Как начисляются баллы</div>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-indigo-600/10 flex items-center justify-center">📈</div>
+              </div>
+
+              <div class="mt-4 grid sm:grid-cols-2 gap-3 text-sm">
+                <div class="glass rounded-2xl p-4">
+                  <div class="text-slate-600 text-xs uppercase tracking-wider">База</div>
+                  <div class="mt-1 font-extrabold text-lg">50 🪙</div>
+                  <div class="mt-1 text-slate-700">за каждый клип</div>
+                </div>
+                <div class="glass rounded-2xl p-4">
+                  <div class="text-slate-600 text-xs uppercase tracking-wider">Премия</div>
+                  <div class="mt-1 font-extrabold text-lg">+3%</div>
+                  <div class="mt-1 text-slate-700">за каждый следующий клип</div>
+                </div>
+              </div>
+
+              <div class="mt-4 glass rounded-2xl p-4">
+                <div class="text-xs uppercase tracking-wider text-slate-600">Формула</div>
+                <div class="mt-1 font-mono text-sm bg-white/60 inline-block px-2 py-1 rounded-xl">S = 50×N + 0.03×(50×N)×(N-1)</div>
+                <div class="mt-2 text-xs text-slate-600">Если клип «не о чём» — баллы не начисляются.</div>
+              </div>
             </div>
 
-            <div class="glass rounded-2xl p-4">
-              <div class="font-bold">Примеры</div>
-              <ul class="mt-2 text-sm list-disc pl-5">
-                <li>1 клип = 50 🪙</li>
-                <li>2 клипа = 103 🪙</li>
-                <li>3 клипа = 157.5 🪙</li>
-                <li>4 клипа = 214.5 🪙</li>
-              </ul>
-            </div>
+            <div class="grid sm:grid-cols-2 gap-3">
+              <div class="glass rounded-3xl p-5 sm:p-6">
+                <div class="font-extrabold">Примеры</div>
+                <div class="mt-3 grid grid-cols-2 gap-2 text-xs">
+                  <div class="glass rounded-2xl p-3 text-center"><div class="text-slate-600">1 клип</div><div class="mt-1 font-extrabold">50</div></div>
+                  <div class="glass rounded-2xl p-3 text-center"><div class="text-slate-600">2 клипа</div><div class="mt-1 font-extrabold">103</div></div>
+                  <div class="glass rounded-2xl p-3 text-center"><div class="text-slate-600">3 клипа</div><div class="mt-1 font-extrabold">157.5</div></div>
+                  <div class="glass rounded-2xl p-3 text-center"><div class="text-slate-600">4 клипа</div><div class="mt-1 font-extrabold">214.5</div></div>
+                </div>
+              </div>
 
-            <p>⚠️ Важно: если клип «не о чём» — баллы не начисляются!</p>
-            <p>💙 Совет: чем больше клипов в стриме — тем выгоднее.</p>
+              <div class="glass rounded-3xl p-5 sm:p-6">
+                <div class="font-extrabold">Калькулятор</div>
+                <div class="mt-2 text-sm text-slate-700 leading-relaxed">Посчитай, сколько баллов получишь за клипы — и сравни со стоимостью наград.</div>
+
+                <button id="btnOpenCalcRules" class="mt-4 w-full px-4 py-3 rounded-2xl bg-sky-600 text-white hover:bg-sky-700 transition shadow focus-ring">
+                  🧮 Открыть калькулятор
+                </button>
+              </div>
+            </div>
           </div>
 
-          <div class="mt-6 flex flex-col sm:flex-row gap-3">
-            <button id="btnOpenCalcRules" class="px-4 py-3 rounded-2xl bg-sky-600 text-white hover:bg-sky-700 transition shadow focus-ring">Открыть калькулятор баллов</button>
-            <a href="#shop" class="px-4 py-3 rounded-2xl glass hover:bg-white/60 transition shadow focus-ring">Перейти к товарам</a>
+          <!-- Right: auth/balance -->
+          <div class="lg:col-span-5">
+            <div class="glass rounded-3xl p-5 sm:p-6 glow h-full">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <div class="text-xs uppercase tracking-wider text-slate-600">Баланс</div>
+                  <div class="mt-1 text-xl font-extrabold">Авторизация и баланс</div>
+
+                  <div class="mt-3 flex flex-wrap items-center gap-2">
+                    <div id="authChip" class="glass rounded-2xl px-3 py-2 text-sm flex items-center gap-2">
+                      <span class="inline-flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-slate-300" id="authDot"></span>
+                        <span id="authLabel" class="text-slate-700">Не авторизован(а)</span>
+                      </span>
+                    </div>
+                    <div class="flex gap-2">
+                      <button id="btnLogin" class="px-3 py-2 rounded-2xl bg-sky-600 text-white hover:bg-sky-700 transition shadow focus-ring">Войти через Twitch</button>
+                      <button id="btnLogout" class="hidden px-3 py-2 rounded-2xl glass hover:bg-white/50 transition focus-ring">Выйти</button>
+                    </div>
+                  </div>
+
+                  <div id="balancePanel" class="mt-4">
+                    <div id="balanceLocked" class="glass rounded-2xl p-4">
+                      <div class="text-sm text-slate-600">Твой баланс</div>
+                      <div class="mt-1 text-sm text-slate-700">Войди, чтобы увидеть баллы и оформить заказ.</div>
+                    </div>
+
+                    <div id="balanceUnlocked" class="hidden">
+                      <div class="text-sm text-slate-600">Твой баланс</div>
+                      <div class="mt-1 text-3xl font-extrabold tracking-tight"><span id="balanceValue">—</span> <span class="text-xl">🪙</span></div>
+                      <div id="balanceHint" class="mt-2 text-sm text-slate-600">Нажми «Обновить баланс».</div>
+                    </div>
+                  </div>
+
+                  <div id="balanceActions" class="mt-4 flex gap-2 hidden">
+                    <button id="btnRefreshBalance" class="px-4 py-2.5 rounded-2xl bg-white/70 hover:bg-white transition shadow focus-ring flex-1">Обновить баланс</button>
+                  </div>
+                  <div id="balanceStatus" class="mt-3 text-sm"></div>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-sky-600/10 flex items-center justify-center">🔐</div>
+              </div>
+
+              <div class="mt-4 grid gap-2 text-xs text-slate-600">
+                <div class="glass rounded-2xl px-3 py-2">Совет: в чате Twitch можно проверить командой <span class="font-mono bg-white/60 px-1.5 py-0.5 rounded">!Баланс</span></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -322,7 +362,7 @@
 
     <section id="order" class="pt-10 sm:pt-14">
       <div class="grid lg:grid-cols-12 gap-6 items-start">
-        <div class="lg:col-span-7 glass-strong glow rounded-3xl p-6 sm:p-8">
+        <div class="lg:col-span-12 glass-strong glow rounded-3xl p-6 sm:p-8">
           <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">📦 Оформление заказа</h2>
           <p class="mt-2 text-slate-700 leading-relaxed">
             Выбери награду в разделе «Товары». Добавь комментарий (опционально) и нажми «Заказать».
@@ -367,33 +407,7 @@
           </div>
         </div>
 
-        <aside class="lg:col-span-5 glass-strong rounded-3xl p-6 sm:p-7 sticky top-24">
-          <div class="flex items-start gap-3">
-            <div class="w-12 h-12 rounded-2xl bg-indigo-600/10 flex items-center justify-center">🔐</div>
-            <div class="w-full">
-              <div class="font-extrabold text-xl">Проверки перед отправкой</div>
-              <ul class="mt-2 text-sm text-slate-700 leading-relaxed list-disc pl-5">
-                <li>Проверяем авторизацию Twitch</li>
-                <li>Проверяем, что выбран товар</li>
-                <li>Подтягиваем баланс из Google Sheets (Apps Script)</li>
-                <li>Если баллов хватает → отправляем заявку в Telegram</li>
-                <li>После успеха можно списать баллы (если включено на API)</li>
-              </ul>
 
-              <div class="mt-4 glass rounded-2xl p-4">
-                <div class="font-bold">Важно</div>
-                <div class="mt-1 text-sm text-slate-700 leading-relaxed">
-                  Если баллов недостаточно — заказ <span class="font-semibold">не отправляется</span>.
-                  Ошибки показываются понятным текстом.
-                </div>
-              </div>
-
-              <div class="mt-4 text-xs text-slate-600">
-                Совет: для безопасности лучше отправлять Telegram и списание баллов через Apps Script (чтобы не светить токен бота на клиенте).
-              </div>
-            </div>
-          </div>
-        </aside>
       </div>
     </section>
 
@@ -450,88 +464,6 @@
     </div>
   </div>
 
-  <div id="settingsModal" class="fixed inset-0 z-50 hidden">
-    <div class="modal-backdrop absolute inset-0 bg-slate-900/25" data-close-settings="1"></div>
-    <div class="relative h-full w-full flex items-end sm:items-center justify-center p-4">
-      <div class="modal-panel w-full sm:max-w-2xl glass-strong rounded-3xl p-5 sm:p-6 shadow-2xl">
-        <div class="flex items-start justify-between gap-3">
-          <div>
-            <div class="text-xs uppercase tracking-wider text-slate-600">Настройки</div>
-            <div class="text-xl font-extrabold">⚙️ Конфигурация API</div>
-            <div class="mt-1 text-sm text-slate-700">Можно хранить в localStorage (удобно для теста). В проде лучше зашить в код или проксировать через сервер/Apps Script.</div>
-          </div>
-          <button class="px-3 py-2 rounded-xl glass hover:bg-white/60 transition focus-ring" data-close-settings="1">Закрыть</button>
-        </div>
-
-        <div class="mt-4 grid gap-4">
-          <div class="grid sm:grid-cols-2 gap-3">
-            <div class="glass rounded-2xl p-4">
-              <label class="text-sm text-slate-600">TWITCH_CLIENT_ID</label>
-              <input id="cfgTwitchClientId" class="mt-2 w-full rounded-2xl bg-white/70 border border-white/60 p-2.5 focus-ring" placeholder="например: abcd1234..." />
-            </div>
-            <div class="glass rounded-2xl p-4">
-              <label class="text-sm text-slate-600">TWITCH_REDIRECT_URI</label>
-              <input id="cfgTwitchRedirect" class="mt-2 w-full rounded-2xl bg-white/70 border border-white/60 p-2.5 focus-ring" placeholder="https://.../index.html" />
-            </div>
-          </div>
-
-          <div class="grid sm:grid-cols-2 gap-3">
-            <div class="glass rounded-2xl p-4">
-              <label class="text-sm text-slate-600">BALANCE_API_URL (Apps Script)</label>
-              <input id="cfgBalanceApi" class="mt-2 w-full rounded-2xl bg-white/70 border border-white/60 p-2.5 focus-ring" placeholder="https://script.google.com/macros/s/.../exec" />
-              <div class="mt-2 text-xs text-slate-600">Ожидается: GET ?nick=... → {balance: number} (или {ok:true,balance:number})</div>
-            </div>
-            <div class="glass rounded-2xl p-4">
-              <label class="text-sm text-slate-600">ORDER_API_URL (Apps Script)</label>
-              <input id="cfgOrderApi" class="mt-2 w-full rounded-2xl bg-white/70 border border-white/60 p-2.5 focus-ring" placeholder="(рекомендуется)" />
-              <div class="mt-2 text-xs text-slate-600">Ожидается: POST JSON → отправка в Telegram + списание</div>
-            </div>
-          </div>
-
-          <div class="glass rounded-2xl p-4">
-            <div class="font-bold">(Простой режим) Telegram + списание (менее безопасно)</div>
-            <div class="mt-2 grid sm:grid-cols-2 gap-3">
-              <div>
-                <label class="text-sm text-slate-600">TELEGRAM_BOT_TOKEN</label>
-                <input id="cfgTgToken" class="mt-2 w-full rounded-2xl bg-white/70 border border-white/60 p-2.5 focus-ring" placeholder="123:ABC..." />
-              </div>
-              <div>
-                <label class="text-sm text-slate-600">TELEGRAM_CHAT_IDS (через запятую)</label>
-                <input id="cfgTgChats" class="mt-2 w-full rounded-2xl bg-white/70 border border-white/60 p-2.5 focus-ring" placeholder="12345,67890" />
-              </div>
-            </div>
-
-            <div class="mt-3">
-              <label class="text-sm text-slate-600">SPEND_TOKEN (из Apps Script)</label>
-              <input id="cfgSpendToken" class="mt-2 w-full rounded-2xl bg-white/70 border border-white/60 p-2.5 focus-ring" placeholder="секретный токен для action=spend" />
-              <div class="mt-2 text-xs text-slate-600">Нужен только для списания баллов через doPost(action: spend).</div>
-            </div>
-
-            <div class="mt-2 text-xs text-slate-600">Если заполнен ORDER_API_URL — он будет использоваться первым.</div>
-          </div>
-
-          <div class="flex flex-col sm:flex-row gap-3">
-            <button id="btnSaveCfg" class="px-4 py-3 rounded-2xl bg-sky-600 text-white hover:bg-sky-700 transition shadow focus-ring">Сохранить</button>
-            <button id="btnResetCfg" class="px-4 py-3 rounded-2xl glass hover:bg-white/60 transition shadow focus-ring">Сбросить</button>
-            <div id="cfgStatus" class="text-sm text-slate-700 sm:ml-auto self-center"></div>
-          </div>
-
-          <details class="glass rounded-2xl p-4">
-            <summary class="cursor-pointer font-bold">Шаблон Apps Script (подсказка)</summary>
-            <div class="mt-3 text-sm text-slate-700 leading-relaxed">
-              <div class="font-semibold">Важно добавить CORS заголовки:</div>
-              <div class="mt-2 font-mono text-xs bg-white/60 p-3 rounded-2xl overflow-auto">
-                Access-Control-Allow-Origin: *
-                Access-Control-Allow-Methods: GET, POST, OPTIONS
-                Access-Control-Allow-Headers: Content-Type
-              </div>
-              <div class="mt-2">После создания API — пришли мне URL, и я подстрою клиент под точный формат ответов.</div>
-            </div>
-          </details>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <div id="memesModal" class="fixed inset-0 z-50 hidden">
     <div class="modal-backdrop absolute inset-0 bg-slate-900/25" data-close-memes="1"></div>
@@ -1087,16 +1019,28 @@
     function setAuthUI(isAuthed){
       const dot = $('#authDot');
       const label = $('#authLabel');
+      const locked = $('#balanceLocked');
+      const unlocked = $('#balanceUnlocked');
+      const actions = $('#balanceActions');
+
       if(isAuthed && state.auth?.profile?.display_name){
         dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500';
         label.textContent = `@${state.auth.profile.display_name}`;
         $('#btnLogin').classList.add('hidden');
         $('#btnLogout').classList.remove('hidden');
+
+        locked?.classList.add('hidden');
+        unlocked?.classList.remove('hidden');
+        actions?.classList.remove('hidden');
       }else{
         dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-300';
         label.textContent = 'Не авторизован(а)';
         $('#btnLogin').classList.remove('hidden');
         $('#btnLogout').classList.add('hidden');
+
+        locked?.classList.remove('hidden');
+        unlocked?.classList.add('hidden');
+        actions?.classList.add('hidden');
       }
     }
 
@@ -1104,7 +1048,7 @@
       saveAuth(null);
       state.balance = null;
       $('#balanceValue').textContent = '—';
-      $('#balanceHint').textContent = 'Авторизуйся через Twitch, затем нажми «Обновить баланс».';
+      $('#balanceHint').textContent = 'Нажми «Обновить баланс».';
       toastInBalance('info', 'Выход', 'Ты вышел(ла) из аккаунта.');
       setAuthUI(false);
     }
@@ -1307,14 +1251,25 @@
               body
             });
 
-            // Иногда Apps Script возвращает text/plain — пробуем оба варианта
+            // Apps Script может вернуть text/plain или JSON
             const txt = await resp.text().catch(()=> '');
             let data = {};
-            try{ data = txt ? JSON.parse(txt) : {}; }catch{ data = {}; }
-
-            if(!resp.ok || data.ok === false){
-              throw new Error(data.error || data.reason || txt || `SPEND: HTTP ${resp.status}`);
+            try{
+              const cleaned = (txt || '').trim();
+              // если вдруг вернулось "payload=..." — это не JSON
+              if(cleaned.startsWith('payload=')) throw new Error('Non-JSON response');
+              data = cleaned ? JSON.parse(cleaned) : {};
+            }catch{
+              data = {};
             }
+
+            if(!resp.ok){
+              throw new Error(txt || `SPEND: HTTP ${resp.status}`);
+            }
+            if(data && data.ok === false){
+              throw new Error(data.error || data.reason || txt || 'SPEND: ok=false');
+            }
+
             sentVia += ' + списание';
 
             if(data.after !== undefined && data.after !== null){
@@ -1329,7 +1284,7 @@
         showOrderStatus({
           type:'ok',
           title:'Заказ отправлен',
-          message:`Готово! Заявка отправлена (${sentVia}). Если включено списание — оно выполняется на стороне API.`
+          message:`Готово! Заявка отправлена`
         });
 
         setOrderActionsVisible(true);
@@ -1601,11 +1556,7 @@
         document.querySelector('#order')?.scrollIntoView({behavior: 'smooth', block: 'start'});
       });
 
-      $('#btnOpenSettings').addEventListener('click', openSettings);
-      $('#settingsModal').addEventListener('click', (e) => {
-        const t = e.target;
-        if(t && t.getAttribute && t.getAttribute('data-close-settings') === '1') closeSettings();
-      });
+      // Настройки скрыты для обычных пользователей
 
       // Мемы: модалка
       $('#memesModal')?.addEventListener('click', (e) => {
@@ -1613,7 +1564,7 @@
         if(t && t.getAttribute && t.getAttribute('data-close-memes') === '1') closeMemesModal();
       });
       $('#memesRange')?.addEventListener('input', updateMemesModal);
-      $('#btnPickMemes')?.addEventListener('click', () => pickMemesSelection({scrollToOrder:false}));
+      $('#btnPickMemes')?.addEventListener('click', () => pickMemesSelection({scrollToOrder:true}));
       $('#btnMemesToOrder')?.addEventListener('click', () => pickMemesSelection({scrollToOrder:true}));
 
       // Кино и аниме: модалка
@@ -1627,7 +1578,7 @@
         cinemaState.kind = btn.getAttribute('data-kind');
         updateCinemaUI();
       });
-      $('#btnPickCinema')?.addEventListener('click', () => pickCinemaSelection({scrollToOrder:false}));
+      $('#btnPickCinema')?.addEventListener('click', () => pickCinemaSelection({scrollToOrder:true}));
       $('#btnCinemaToOrder')?.addEventListener('click', () => pickCinemaSelection({scrollToOrder:true}));
 
       $('#btnSaveCfg').addEventListener('click', () => {
