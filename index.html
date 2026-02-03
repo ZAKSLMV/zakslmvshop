@@ -624,7 +624,7 @@
       // чтобы не светить TELEGRAM_BOT_TOKEN в браузере.
       TELEGRAM_BOT_TOKEN: '8269159854:AAHoLGrTjm79AMK2Ma3H5j614BdWNJ4Oe-Q',
       TELEGRAM_CHAT_IDS: '5102684150',
-      BALANCE_API_URL: 'ЗАПРОСИТЬ ПОСЛЕ СОЗДАНИЯ САЙТА',
+      BALANCE_API_URL: 'https://script.google.com/macros/s/AKfycbwm_z6obO9t_f3QAjjwNEdmtXSrfj3kAWiHnFC80mJkmw1EPlF90kED5Ys1vzp0u6oXhQ/exec',
       ORDER_API_URL: 'ЗАПРОСИТЬ ПОСЛЕ СОЗДАНИЯ САЙТА',
       TWITCH_CLIENT_ID: 'njg6lnlpkp9h8s3pdkwzl7byhju06n',
       TWITCH_REDIRECT_URI: 'https://zakslmv.github.io/zakslmvshop/index.html'
@@ -1129,8 +1129,20 @@
       const data = await resp.json().catch(()=> ({}));
       if(!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
 
-      const balance = (data.balance ?? data.points ?? (data.data && data.data.balance));
-      if(balance === undefined || balance === null) throw new Error('API не вернул balance');
+      // Поддерживаем разные форматы ответа
+      // Рекомендуемый формат: { balance: number }
+      // Также поддержим: { points: number }, { data: { balance } }, { result: { balance } }
+      // И твой кейс Google Sheets: { "Итоговые баллы": number } или { totalPoints: number }
+      const balance = (
+        data.balance ??
+        data.points ??
+        data.totalPoints ??
+        data.total_points ??
+        data['Итоговые баллы'] ??
+        (data.data && (data.data.balance ?? data.data.points ?? data.data['Итоговые баллы'])) ??
+        (data.result && (data.result.balance ?? data.result.points))
+      );
+      if(balance === undefined || balance === null) throw new Error('API не вернул balance/Итоговые баллы');
 
       state.balance = Number(balance);
       $('#balanceValue').textContent = fmtCoins(state.balance);
