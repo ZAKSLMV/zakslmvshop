@@ -1253,11 +1253,17 @@
         let sentVia = null;
 
         if(cfgIsSet(state.cfg.ORDER_API_URL)){
+          // ВАЖНО: Apps Script часто не отдаёт CORS-заголовки на preflight (OPTIONS) при JSON POST.
+          // Поэтому шлём как application/x-www-form-urlencoded — это "simple request" без preflight.
+          const form = new URLSearchParams();
+          form.set('payload', JSON.stringify({ action: 'order', ...orderPayload }));
+
           const resp = await fetch(state.cfg.ORDER_API_URL.trim(), {
             method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({ action: 'order', ...orderPayload })
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: form.toString()
           });
+
           const data = await resp.json().catch(()=> ({}));
           if(!resp.ok || data.ok === false){
             throw new Error(data.error || `ORDER_API_URL: HTTP ${resp.status}`);
@@ -1270,19 +1276,20 @@
           }
         } else if(cfgIsSet(state.cfg.BALANCE_API_URL)){
           // Режим без ORDER_API_URL: списываем баллы через тот же Apps Script, если он поддерживает doPost(action: 'spend')
-          // Ожидается ответ как в твоём скрипте: { ok:true, after:number }
+          // Ожидается ответ: { ok:true, after:number }
+          const form = new URLSearchParams();
+          form.set('payload', JSON.stringify({
+            action: 'spend',
+            nick,
+            amount: Number(item.price) || 0,
+            item: item.title,
+            comment
+          }));
+
           const resp = await fetch(state.cfg.BALANCE_API_URL.trim(), {
             method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({
-              action: 'spend',
-              // В твоём скрипте deductPoints принимает nickname и сравнивает с колонкой "Никнейм"
-              // Обычно display_name подходит лучше
-              nick,
-              amount: Number(item.price) || 0,
-              item: item.title,
-              comment
-            })
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: form.toString()
           });
           const data = await resp.json().catch(()=> ({}));
           if(!resp.ok || data.ok === false){
