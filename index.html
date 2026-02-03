@@ -1300,17 +1300,9 @@
       }
     }
 
-    function openSettings(){
-      $('#settingsModal').classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-      fillSettingsInputs();
-      setTimeout(() => $('#cfgTwitchClientId')?.focus(), 0);
-    }
-
-    function closeSettings(){
-      $('#settingsModal').classList.add('hidden');
-      document.body.style.overflow = '';
-    }
+    // Настройки были убраны из пользовательского интерфейса
+    function openSettings(){}
+    function closeSettings(){}
 
     // Мемы (модалка)
     function openMemesModal(){
@@ -1523,7 +1515,6 @@
       window.addEventListener('keydown', (e) => {
         if(e.key === 'Escape'){
           if(!$('#calcModal').classList.contains('hidden')) closeCalc();
-          if(!$('#settingsModal').classList.contains('hidden')) closeSettings();
           if(!$('#memesModal')?.classList.contains('hidden')) closeMemesModal();
           if(!$('#cinemaModal')?.classList.contains('hidden')) closeCinemaModal();
         }
@@ -1581,26 +1572,7 @@
       $('#btnPickCinema')?.addEventListener('click', () => pickCinemaSelection({scrollToOrder:true}));
       $('#btnCinemaToOrder')?.addEventListener('click', () => pickCinemaSelection({scrollToOrder:true}));
 
-      $('#btnSaveCfg').addEventListener('click', () => {
-        saveCfg({
-          TWITCH_CLIENT_ID: $('#cfgTwitchClientId').value.trim(),
-          TWITCH_REDIRECT_URI: $('#cfgTwitchRedirect').value.trim(),
-          BALANCE_API_URL: $('#cfgBalanceApi').value.trim(),
-          ORDER_API_URL: $('#cfgOrderApi').value.trim(),
-          TELEGRAM_BOT_TOKEN: $('#cfgTgToken').value.trim(),
-          TELEGRAM_CHAT_IDS: $('#cfgTgChats').value.trim(),
-          SPEND_TOKEN: $('#cfgSpendToken').value.trim()
-        });
-        updateCfgStatus('Сохранено');
-        setTimeout(()=> updateCfgStatus(''), 1200);
-      });
-
-      $('#btnResetCfg').addEventListener('click', () => {
-        resetCfg();
-        fillSettingsInputs();
-        updateCfgStatus('Сброшено');
-        setTimeout(()=> updateCfgStatus(''), 1200);
-      });
+      // Настройки/сохранение конфигов убраны из UI, обработчики не нужны.
 
       $('#btnLogin').addEventListener('click', startTwitchLogin);
       $('#btnLogout').addEventListener('click', logout);
