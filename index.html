@@ -620,12 +620,13 @@
 
   <script>
     const DEFAULT_CFG = {
-      // ВАЖНО: хранить токены на клиенте небезопасно. Лучше использовать ORDER_API_URL (Apps Script),
-      // чтобы не светить TELEGRAM_BOT_TOKEN в браузере.
-      TELEGRAM_BOT_TOKEN: '8269159854:AAHoLGrTjm79AMK2Ma3H5j614BdWNJ4Oe-Q',
-      TELEGRAM_CHAT_IDS: '5102684150',
+      // ВАЖНО: хранить токены на клиенте небезопасно.
+      // Для “по уму” используем ORDER_API_URL (Apps Script), который сам отправляет в Telegram и списывает баллы.
+      // Поэтому Telegram токен/чаты оставляем пустыми на клиенте.
+      TELEGRAM_BOT_TOKEN: '',
+      TELEGRAM_CHAT_IDS: '',
       BALANCE_API_URL: 'https://script.google.com/macros/s/AKfycbwm_z6obO9t_f3QAjjwNEdmtXSrfj3kAWiHnFC80mJkmw1EPlF90kED5Ys1vzp0u6oXhQ/exec',
-      ORDER_API_URL: 'ЗАПРОСИТЬ ПОСЛЕ СОЗДАНИЯ САЙТА',
+      ORDER_API_URL: 'https://script.google.com/macros/s/AKfycbwm_z6obO9t_f3QAjjwNEdmtXSrfj3kAWiHnFC80mJkmw1EPlF90kED5Ys1vzp0u6oXhQ/exec',
       TWITCH_CLIENT_ID: 'njg6lnlpkp9h8s3pdkwzl7byhju06n',
       TWITCH_REDIRECT_URI: 'https://zakslmv.github.io/zakslmvshop/index.html'
     };
@@ -1267,6 +1268,32 @@
             state.balance = Number(data.balance);
             $('#balanceValue').textContent = fmtCoins(state.balance);
           }
+        } else if(cfgIsSet(state.cfg.BALANCE_API_URL)){
+          // Режим без ORDER_API_URL: списываем баллы через тот же Apps Script, если он поддерживает doPost(action: 'spend')
+          // Ожидается ответ как в твоём скрипте: { ok:true, after:number }
+          const resp = await fetch(state.cfg.BALANCE_API_URL.trim(), {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({
+              action: 'spend',
+              // В твоём скрипте deductPoints принимает nickname и сравнивает с колонкой "Никнейм"
+              // Обычно display_name подходит лучше
+              nick,
+              amount: Number(item.price) || 0,
+              item: item.title,
+              comment
+            })
+          });
+          const data = await resp.json().catch(()=> ({}));
+          if(!resp.ok || data.ok === false){
+            throw new Error(data.error || data.reason || `SPEND: HTTP ${resp.status}`);
+          }
+          sentVia = 'Apps Script (списание)';
+
+          if(data.after !== undefined && data.after !== null){
+            state.balance = Number(data.after);
+            $('#balanceValue').textContent = fmtCoins(state.balance);
+          }
         } else if(cfgIsSet(state.cfg.TELEGRAM_BOT_TOKEN) && cfgIsSet(state.cfg.TELEGRAM_CHAT_IDS)){
           const ids = state.cfg.TELEGRAM_CHAT_IDS.split(',').map(s=>s.trim()).filter(Boolean);
           const token = state.cfg.TELEGRAM_BOT_TOKEN.trim();
@@ -1284,7 +1311,7 @@
               throw new Error(data.description || `Telegram error: HTTP ${resp.status}`);
             }
           }
-          sentVia = 'Telegram напрямую';
+          sentVia = 'Telegram напрямую (без списания)';
         } else {
           throw new Error('Не настроен ORDER_API_URL и не заполнены Telegram параметры. Открой «Настройки».');
         }
