@@ -489,7 +489,7 @@
           </div>
 
           <div class="glass rounded-2xl p-4">
-            <div class="font-bold">(Опционально) Прямой Telegram (не рекомендуется)</div>
+            <div class="font-bold">(Простой режим) Telegram + списание (менее безопасно)</div>
             <div class="mt-2 grid sm:grid-cols-2 gap-3">
               <div>
                 <label class="text-sm text-slate-600">TELEGRAM_BOT_TOKEN</label>
@@ -500,6 +500,13 @@
                 <input id="cfgTgChats" class="mt-2 w-full rounded-2xl bg-white/70 border border-white/60 p-2.5 focus-ring" placeholder="12345,67890" />
               </div>
             </div>
+
+            <div class="mt-3">
+              <label class="text-sm text-slate-600">SPEND_TOKEN (из Apps Script)</label>
+              <input id="cfgSpendToken" class="mt-2 w-full rounded-2xl bg-white/70 border border-white/60 p-2.5 focus-ring" placeholder="секретный токен для action=spend" />
+              <div class="mt-2 text-xs text-slate-600">Нужен только для списания баллов через doPost(action: spend).</div>
+            </div>
+
             <div class="mt-2 text-xs text-slate-600">Если заполнен ORDER_API_URL — он будет использоваться первым.</div>
           </div>
 
@@ -621,12 +628,15 @@
   <script>
     const DEFAULT_CFG = {
       // ВАЖНО: хранить токены на клиенте небезопасно.
-      // Для “по уму” используем ORDER_API_URL (Apps Script), который сам отправляет в Telegram и списывает баллы.
-      // Поэтому Telegram токен/чаты оставляем пустыми на клиенте.
-      TELEGRAM_BOT_TOKEN: '',
-      TELEGRAM_CHAT_IDS: '',
+      // Этот режим — "как было":
+      // 1) заказ отправляется напрямую в Telegram
+      // 2) списание баллов идёт через Apps Script doPost(action:'spend') с токеном
+      // Более рабоче, но менее безопасно (токены видны в браузере).
+      TELEGRAM_BOT_TOKEN: '8269159854:AAHoLGrTjm79AMK2Ma3H5j614BdWNJ4Oe-Q',
+      TELEGRAM_CHAT_IDS: '5102684150',
+      SPEND_TOKEN: 'xK9mN2pQ7vR8zW3bF6',
       BALANCE_API_URL: 'https://script.google.com/macros/s/AKfycbwm_z6obO9t_f3QAjjwNEdmtXSrfj3kAWiHnFC80mJkmw1EPlF90kED5Ys1vzp0u6oXhQ/exec',
-      ORDER_API_URL: 'https://script.google.com/macros/s/AKfycbwm_z6obO9t_f3QAjjwNEdmtXSrfj3kAWiHnFC80mJkmw1EPlF90kED5Ys1vzp0u6oXhQ/exec',
+      ORDER_API_URL: '',
       TWITCH_CLIENT_ID: 'njg6lnlpkp9h8s3pdkwzl7byhju06n',
       TWITCH_REDIRECT_URI: 'https://zakslmv.github.io/zakslmvshop/index.html'
     };
@@ -1252,56 +1262,8 @@
 
         let sentVia = null;
 
-        if(cfgIsSet(state.cfg.ORDER_API_URL)){
-          // ВАЖНО: Apps Script часто не отдаёт CORS-заголовки на preflight (OPTIONS) при JSON POST.
-          // Поэтому шлём как application/x-www-form-urlencoded — это "simple request" без preflight.
-          const form = new URLSearchParams();
-          form.set('payload', JSON.stringify({ action: 'order', ...orderPayload }));
-
-          const resp = await fetch(state.cfg.ORDER_API_URL.trim(), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-            body: form.toString()
-          });
-
-          const data = await resp.json().catch(()=> ({}));
-          if(!resp.ok || data.ok === false){
-            throw new Error(data.error || `ORDER_API_URL: HTTP ${resp.status}`);
-          }
-          sentVia = 'Apps Script';
-
-          if(data.balance !== undefined && data.balance !== null){
-            state.balance = Number(data.balance);
-            $('#balanceValue').textContent = fmtCoins(state.balance);
-          }
-        } else if(cfgIsSet(state.cfg.BALANCE_API_URL)){
-          // Режим без ORDER_API_URL: списываем баллы через тот же Apps Script, если он поддерживает doPost(action: 'spend')
-          // Ожидается ответ: { ok:true, after:number }
-          const form = new URLSearchParams();
-          form.set('payload', JSON.stringify({
-            action: 'spend',
-            nick,
-            amount: Number(item.price) || 0,
-            item: item.title,
-            comment
-          }));
-
-          const resp = await fetch(state.cfg.BALANCE_API_URL.trim(), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-            body: form.toString()
-          });
-          const data = await resp.json().catch(()=> ({}));
-          if(!resp.ok || data.ok === false){
-            throw new Error(data.error || data.reason || `SPEND: HTTP ${resp.status}`);
-          }
-          sentVia = 'Apps Script (списание)';
-
-          if(data.after !== undefined && data.after !== null){
-            state.balance = Number(data.after);
-            $('#balanceValue').textContent = fmtCoins(state.balance);
-          }
-        } else if(cfgIsSet(state.cfg.TELEGRAM_BOT_TOKEN) && cfgIsSet(state.cfg.TELEGRAM_CHAT_IDS)){
+        if(cfgIsSet(state.cfg.TELEGRAM_BOT_TOKEN) && cfgIsSet(state.cfg.TELEGRAM_CHAT_IDS)){
+          // Режим "как было": отправляем в Telegram напрямую, затем (если есть BALANCE_API_URL + SPEND_TOKEN) списываем.
           const ids = state.cfg.TELEGRAM_CHAT_IDS.split(',').map(s=>s.trim()).filter(Boolean);
           const token = state.cfg.TELEGRAM_BOT_TOKEN.trim();
           if(!ids.length) throw new Error('TELEGRAM_CHAT_IDS пуст');
@@ -1318,9 +1280,35 @@
               throw new Error(data.description || `Telegram error: HTTP ${resp.status}`);
             }
           }
-          sentVia = 'Telegram напрямую (без списания)';
+          sentVia = 'Telegram напрямую';
+
+          // Списание (если настроено)
+          if(cfgIsSet(state.cfg.BALANCE_API_URL) && cfgIsSet(state.cfg.SPEND_TOKEN) && Number(item.price) > 0){
+            const resp = await fetch(state.cfg.BALANCE_API_URL.trim(), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                action: 'spend',
+                token: state.cfg.SPEND_TOKEN || '',
+                nick,
+                amount: Number(item.price) || 0,
+                item: item.title,
+                comment
+              })
+            });
+            const data = await resp.json().catch(()=> ({}));
+            if(!resp.ok || data.ok === false){
+              throw new Error(data.error || data.reason || `SPEND: HTTP ${resp.status}`);
+            }
+            sentVia += ' + списание';
+
+            if(data.after !== undefined && data.after !== null){
+              state.balance = Number(data.after);
+              $('#balanceValue').textContent = fmtCoins(state.balance);
+            }
+          }
         } else {
-          throw new Error('Не настроен ORDER_API_URL и не заполнены Telegram параметры. Открой «Настройки».');
+          throw new Error('Не заполнены Telegram параметры. Открой «Настройки» и укажи TELEGRAM_BOT_TOKEN и TELEGRAM_CHAT_IDS.');
         }
 
         showOrderStatus({
@@ -1489,8 +1477,11 @@
       $('#cfgTwitchRedirect').value = (cfgIsSet(state.cfg.TWITCH_REDIRECT_URI) ? state.cfg.TWITCH_REDIRECT_URI : window.location.href.split('#')[0]);
       $('#cfgBalanceApi').value = (cfgIsSet(state.cfg.BALANCE_API_URL) ? state.cfg.BALANCE_API_URL : '');
       $('#cfgOrderApi').value = (cfgIsSet(state.cfg.ORDER_API_URL) ? state.cfg.ORDER_API_URL : '');
+      // ORDER_API_URL по умолчанию не используем в простом режиме
+      if(!cfgIsSet(state.cfg.ORDER_API_URL)) $('#cfgOrderApi').value = '';
       $('#cfgTgToken').value = (cfgIsSet(state.cfg.TELEGRAM_BOT_TOKEN) ? state.cfg.TELEGRAM_BOT_TOKEN : '');
       $('#cfgTgChats').value = (cfgIsSet(state.cfg.TELEGRAM_CHAT_IDS) ? state.cfg.TELEGRAM_CHAT_IDS : '');
+      $('#cfgSpendToken').value = (cfgIsSet(state.cfg.SPEND_TOKEN) ? state.cfg.SPEND_TOKEN : '');
     }
 
     function updateCfgStatus(text){
@@ -1631,7 +1622,8 @@
           BALANCE_API_URL: $('#cfgBalanceApi').value.trim(),
           ORDER_API_URL: $('#cfgOrderApi').value.trim(),
           TELEGRAM_BOT_TOKEN: $('#cfgTgToken').value.trim(),
-          TELEGRAM_CHAT_IDS: $('#cfgTgChats').value.trim()
+          TELEGRAM_CHAT_IDS: $('#cfgTgChats').value.trim(),
+          SPEND_TOKEN: $('#cfgSpendToken').value.trim()
         });
         updateCfgStatus('Сохранено');
         setTimeout(()=> updateCfgStatus(''), 1200);
