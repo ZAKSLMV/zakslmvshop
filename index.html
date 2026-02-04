@@ -8,26 +8,29 @@
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <style>
     :root{
-      --glass-bg: rgba(255,255,255,.55);
-      --glass-border: rgba(255,255,255,.6);
-      --shadow: 0 10px 30px rgba(15, 23, 42, .12);
-      --shadow-strong: 0 18px 60px rgba(15, 23, 42, .18);
-      --ring: rgba(59,130,246,.25);
-      --ink: #0b1b33;
+      /* Darker (but still light) glass */
+      --glass-bg: rgba(240,244,255,.38);
+      --glass-border: rgba(203,213,225,.55);
+      --shadow: 0 16px 44px rgba(15, 23, 42, .18);
+      --shadow-strong: 0 26px 84px rgba(15, 23, 42, .22);
+      --ring: rgba(59,130,246,.28);
+      --ink: #071427;
     }
 
     html{ scroll-behavior: smooth; }
 
     body{
       color: var(--ink);
-      background: radial-gradient(1200px 700px at 15% 15%, rgba(147,197,253,.55), rgba(255,255,255,0) 55%),
-                  radial-gradient(1100px 700px at 85% 10%, rgba(224,231,255,.65), rgba(255,255,255,0) 55%),
-                  radial-gradient(900px 600px at 80% 75%, rgba(186,230,253,.55), rgba(255,255,255,0) 60%),
-                  linear-gradient(180deg, #eaf5ff 0%, #f6fbff 35%, #eef7ff 100%);
+      /* Noticeably darker, more contrasty background (still not full dark mode) */
+      background: radial-gradient(1200px 700px at 15% 15%, rgba(96,165,250,.46), rgba(255,255,255,0) 56%),
+                  radial-gradient(1100px 700px at 85% 10%, rgba(165,180,252,.46), rgba(255,255,255,0) 58%),
+                  radial-gradient(900px 600px at 80% 75%, rgba(125,211,252,.38), rgba(255,255,255,0) 62%),
+                  linear-gradient(180deg, #bfdbfe 0%, #dbeafe 34%, #c7d2fe 100%);
       min-height: 100vh;
       overflow-x: hidden;
     }
 
+    /* Subtle moving gradient */
     .bg-anim{
       position: fixed;
       inset: 0;
@@ -47,6 +50,7 @@
       100%{ transform: translate3d(1%, 1.2%, 0) scale(1.06); }
     }
 
+    /* Glass panels */
     .glass{
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
@@ -63,6 +67,22 @@
       -webkit-backdrop-filter: blur(16px);
     }
 
+    .glow{
+      position: relative;
+      isolation: isolate;
+    }
+
+    .glow:before{
+      content: "";
+      position: absolute;
+      inset: -14px;
+      z-index: -1;
+      background: radial-gradient(500px 120px at 25% 0%, rgba(59,130,246,.28), rgba(255,255,255,0) 70%),
+                  radial-gradient(420px 120px at 80% 30%, rgba(56,189,248,.25), rgba(255,255,255,0) 70%),
+                  radial-gradient(420px 140px at 50% 100%, rgba(129,140,248,.18), rgba(255,255,255,0) 70%);
+      filter: blur(18px);
+      opacity: .9;
+    }
     .glow{
       position: relative;
       isolation: isolate;
