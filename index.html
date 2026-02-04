@@ -884,6 +884,14 @@
       return cfgIsSet(state.cfg.TWITCH_CLIENT_ID) && cfgIsSet(state.cfg.TWITCH_REDIRECT_URI);
     }
 
+    function preferredRedirectUri(){
+      // Чтобы после авторизации можно было убрать index.html,
+      // используем "чистый" URL (директория) если страница открыта как /index.html.
+      const {origin, pathname} = window.location;
+      if(pathname.endsWith('/index.html')) return origin + pathname.replace(/index\.html$/, '');
+      return origin + pathname;
+    }
+
     async function startTwitchLogin(){
       if(!twitchConfigOk()){
         toastInBalance('warn', 'Нужна конфигурация', 'Заполни TWITCH_CLIENT_ID и TWITCH_REDIRECT_URI в «Настройках».');
@@ -891,23 +899,17 @@
         return;
       }
 
+      // СНАЧАЛА implicit (как ты просил) — у тебя он проходит стабильно.
       const clientId = state.cfg.TWITCH_CLIENT_ID.trim();
-      const redirectUri = state.cfg.TWITCH_REDIRECT_URI.trim();
-      const stateStr = randString(22);
-      const verifier = randString(64);
-      const challenge = await sha256base64url(verifier);
+      const redirectUri = (state.cfg.TWITCH_REDIRECT_URI || preferredRedirectUri()).trim();
+      const stateStr = randString(18);
 
-      sessionStorage.setItem(LS_KEYS.pkce, JSON.stringify({verifier, state: stateStr, ts: Date.now()}));
-
-      const scopes = ['user:read:email'];
       const params = new URLSearchParams({
         client_id: clientId,
         redirect_uri: redirectUri,
-        response_type: 'code',
-        scope: scopes.join(' '),
-        state: stateStr,
-        code_challenge: challenge,
-        code_challenge_method: 'S256'
+        response_type: 'token',
+        scope: '',
+        state: stateStr
       });
 
       window.location.href = `https://id.twitch.tv/oauth2/authorize?${params.toString()}`;
@@ -931,7 +933,9 @@
 
       if(accessTokenHash && tokenTypeHash){
         saveAuth({ access_token: accessTokenHash, token_type: tokenTypeHash, obtained_at: Date.now(), via: 'implicit' });
-        history.replaceState({}, document.title, url.origin + url.pathname + url.search);
+        // Убираем hash (и при возможности — index.html)
+        const clean = preferredRedirectUri();
+        history.replaceState({}, document.title, clean);
         await hydrateUserFromTwitch();
         return;
       }
@@ -949,7 +953,8 @@
 
         url.searchParams.delete('code');
         url.searchParams.delete('state');
-        history.replaceState({}, document.title, url.toString());
+        // если вдруг попадём сюда (PKCE), тоже стараемся сделать "чистый" URL
+        history.replaceState({}, document.title, preferredRedirectUri());
 
         await hydrateUserFromTwitch();
       }catch(e){
@@ -1036,7 +1041,9 @@
         const profile = { id: u.id, login: u.login, display_name: u.display_name, profile_image_url: u.profile_image_url };
         saveAuth({...state.auth, profile});
         setAuthUI(true);
-        toastInBalance('ok', 'Авторизация успешна', `Привет, ${profile.display_name}! Теперь можно обновить баланс.`);
+        toastInBalance('ok', 'Авторизация успешна', `Привет, ${profile.display_name}! Баланс подтянется автоматически.`);
+        // Автоподгрузка баланса после входа
+        fetchBalance().catch(()=>{});
       }catch(e){
         setAuthUI(false);
         toastInBalance('err', 'Ошибка Twitch API', e.message || String(e));
@@ -1790,7 +1797,9 @@
       }
 
       if(state.auth?.profile){
-        $('#balanceHint').textContent = `Авторизован(а) как @${state.auth.profile.display_name}. Нажми «Обновить баланс».`;
+        $('#balanceHint').textContent = `Авторизован(а) как @${state.auth.profile.display_name}. Баланс обновится автоматически.`;
+        // Автоподгрузка баланса при заходе/обновлении страницы
+        fetchBalance().catch(()=>{});
       }
     }
 
