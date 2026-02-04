@@ -195,12 +195,12 @@
             </div>
 
             <h1 class="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight">
-              Забирай награды за баллы —<br class="hidden sm:block" />
+              Забирай награды за баллы -<br class="hidden sm:block" />
               просто, честно и без лишних шагов
             </h1>
 
             <p class="mt-3 text-slate-700 leading-relaxed text-base sm:text-lg max-w-2xl">
-              Накопили баллы за клипы — обменяйте их на мем‑пак, выбор кино/аниме или другие штуки для стрима.
+              Накопили баллы за клипы - обменяйте их на мем‑пак, выбор кино/аниме или другие штуки для стрима.
               Всё оформляется прямо здесь: выбрали → добавили комментарий → отправили.
             </p>
 
@@ -327,7 +327,7 @@
 
                     <div id="balanceUnlocked" class="hidden">
                       <div class="text-sm text-slate-600">Твой баланс</div>
-                      <div class="mt-1 text-3xl font-extrabold tracking-tight"><span id="balanceValue">—</span> <span class="text-xl">🪙</span></div>
+                      <div class="mt-1 text-3xl font-extrabold tracking-tight"><span id="balanceValue">-</span> <span class="text-xl">🪙</span></div>
                       <div id="balanceHint" class="mt-2 text-sm text-slate-600">Нажми «Обновить баланс».</div>
                     </div>
                   </div>
@@ -355,7 +355,7 @@
           <div>
             <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">🛍️ Витрина</h2>
             <p class="mt-2 text-slate-700 leading-relaxed">
-              Выбирай категорию, затем вариант — выбранная позиция автоматически подставится в оформление заказа.
+              Выбирай категорию, затем вариант - выбранная позиция автоматически подставится в оформление заказа.
             </p>
           </div>
           <div class="glass rounded-2xl p-3 flex flex-col sm:flex-row gap-2 sm:items-center">
@@ -384,7 +384,7 @@
             </p>
 
             <div class="mt-3 text-sm text-slate-600">
-              После отправки заявка придёт в Telegram. Если баллов недостаточно — сайт покажет ошибку.
+              После отправки заявка придёт в Telegram. Если баллов недостаточно - сайт покажет ошибку.
             </div>
 
           </div>
@@ -692,7 +692,7 @@
     }
 
     function fmtCoins(x){
-      if(x === null || x === undefined || Number.isNaN(Number(x))) return '—';
+      if(x === null || x === undefined || Number.isNaN(Number(x))) return '-';
       const n = Number(x);
       const isInt = Math.abs(n - Math.round(n)) < 1e-9;
       return (isInt ? String(Math.round(n)) : n.toFixed(2).replace(/\.00$/, ''));
@@ -841,9 +841,9 @@
       if(rerender) renderProducts();
       const sel = state.selected;
       $('#selectedBadge').textContent = sel ? `${sel.icon} ${sel.title} — ${fmtCoins(sel.price)} 🪙` : 'Ничего';
-      $('#orderItemName').textContent = sel ? `${sel.icon} ${sel.title}` : '—';
+      $('#orderItemName').textContent = sel ? `${sel.icon} ${sel.title}` : '-';
       $('#orderItemMeta').textContent = sel ? `${sel.category}` : 'Выбери товар в витрине';
-      $('#orderItemPrice').textContent = sel ? fmtCoins(sel.price) : '—';
+      $('#orderItemPrice').textContent = sel ? fmtCoins(sel.price) : '-';
 
       // hints/checklist/button state
       updateOrderAssistUI();
@@ -1133,7 +1133,7 @@
     function logout(){
       saveAuth(null);
       state.balance = null;
-      $('#balanceValue').textContent = '—';
+      $('#balanceValue').textContent = '-';
       $('#balanceHint').textContent = 'Нажми «Обновить баланс».';
       toastInBalance('info', 'Выход', 'Ты вышел(ла) из аккаунта.');
       setAuthUI(false);
@@ -1162,7 +1162,7 @@
       if(!nick) throw new Error('Ник не найден');
 
       $('#balanceValue').textContent = '…';
-      toastInBalance('info', 'Загрузка', 'Запрашиваем баланс…');
+      toastInBalance('info', 'Загрузка', 'Запрашиваем баланс..');
 
       const url = new URL(state.cfg.BALANCE_API_URL.trim());
       url.searchParams.set('nick', nick);
@@ -1334,7 +1334,7 @@
         '📦 Новый заказ:',
         `Товар: ${item.title}`,
         `Nick: ${nick}`,
-        `Комментарий: ${comment && comment.trim() ? comment.trim() : '—'}`,
+        `Комментарий: ${comment && comment.trim() ? comment.trim() : '-'}`, 
         `Стоимость: ${fmtCoins(item.price)} 🪙`
       ];
       return lines.join('\n');
