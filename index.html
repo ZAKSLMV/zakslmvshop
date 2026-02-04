@@ -162,62 +162,50 @@
 
 
   <main id="top" class="max-w-6xl mx-auto px-4 sm:px-6 pb-20">
-    <!-- Hero -->
+    <!-- Hero (большая приветственная панель) -->
     <section class="pt-8 sm:pt-10">
-      <div class="grid lg:grid-cols-12 gap-6 items-stretch">
-        <div class="lg:col-span-7 glass-strong glow rounded-3xl p-6 sm:p-8">
-          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-sm text-slate-700">
-            <span>✨</span>
-            <span>Лёгкий стеклянный дизайн • Быстро • Без лишних кликов</span>
-          </div>
-          <h1 class="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight">
-            🪙 Добро пожаловать в магазинчик
-          </h1>
-          <p class="mt-3 text-slate-700 leading-relaxed">
-            Здесь ты можешь заказать контент за баллы, которые заработал(а) на клипах.
-            Выбирай награду, проверяй баланс и отправляй заказ — прямо с сайта.
-          </p>
+      <div class="glass-strong glow rounded-3xl p-6 sm:p-8">
+        <div class="grid lg:grid-cols-12 gap-6 items-start">
+          <div class="lg:col-span-8 min-w-0">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-sm text-slate-700">
+              <span aria-hidden="true">✨</span>
+              <span class="font-semibold">Добро пожаловать</span>
+              <span class="text-slate-500">•</span>
+              <span class="text-slate-600">Магазинчик за баллы</span>
+            </div>
 
-          <div class="mt-6 flex flex-col sm:flex-row gap-3">
-            <a href="#rules" class="glass rounded-2xl px-4 py-3 hover:bg-white/60 transition shadow focus-ring">
-              <div class="font-bold">Перейти к правилам</div>
-              <div class="text-sm text-slate-600">Как начисляются баллы + калькулятор</div>
-            </a>
-            <a href="#shop" class="glass rounded-2xl px-4 py-3 hover:bg-white/60 transition shadow focus-ring">
-              <div class="font-bold">Открыть витрину</div>
-              <div class="text-sm text-slate-600">Награды, мемы, кино, игры и не только</div>
-            </a>
-            <a href="#order" class="glass rounded-2xl px-4 py-3 hover:bg-white/60 transition shadow focus-ring">
-              <div class="font-bold">Оформить заказ</div>
-              <div class="text-sm text-slate-600">Выбери товар и отправь заявку</div>
-            </a>
-          </div>
+            <h1 class="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight">
+              Забирай награды за баллы —<br class="hidden sm:block" />
+              просто, честно и без лишних шагов
+            </h1>
 
-          <div class="mt-6 glass rounded-2xl p-4">
-            <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-2xl bg-sky-600/10 flex items-center justify-center">💡</div>
-              <div>
-                <div class="font-bold">Подсказка</div>
-                <div class="text-sm text-slate-700 leading-relaxed">
-                  Проверить свои баллы можно на Twitch командой в чате: <span class="font-mono bg-white/60 px-1.5 py-0.5 rounded">!Баланс</span>
-                  (или обновить баланс здесь — после авторизации).
-                </div>
-              </div>
+            <p class="mt-3 text-slate-700 leading-relaxed text-base sm:text-lg max-w-2xl">
+              Накопил(а) баллы за клипы — обменяй их на мем‑пак, выбор кино/аниме или другие штуки для стрима.
+              Всё оформляется прямо здесь: выбрал(а) → добавил(а) комментарий → отправил(а).
+            </p>
+
+            <div class="mt-6 flex flex-col sm:flex-row flex-wrap gap-2">
+              <a href="#rules" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-sky-600 text-white hover:bg-sky-700 transition shadow focus-ring text-center font-semibold">
+                <span aria-hidden="true">📌</span>
+                <span>Правила</span>
+                <span class="text-white/80 font-normal">+ калькулятор</span>
+              </a>
+              <a href="#shop" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl glass hover:bg-white/60 transition shadow focus-ring text-center font-semibold">
+                <span aria-hidden="true">🛍️</span>
+                <span>Товары</span>
+              </a>
+              <a href="#order" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl glass hover:bg-white/60 transition shadow focus-ring text-center font-semibold">
+                <span aria-hidden="true">✉️</span>
+                <span>Оформление</span>
+              </a>
             </div>
           </div>
-        </div>
 
-        <div class="lg:col-span-5 grid gap-6">
-          <div class="glass-strong rounded-3xl p-6 sm:p-7">
-            <div class="flex items-start gap-3">
-              <div class="w-12 h-12 rounded-2xl bg-indigo-600/10 flex items-center justify-center">⚡</div>
-              <div>
-                <div class="font-extrabold text-xl">Быстрый старт</div>
-                <ul class="mt-2 text-sm text-slate-700 leading-relaxed list-disc pl-5">
-                  <li>Войти через Twitch — чтобы подтянуть ник и баланс</li>
-                  <li>Посчитать баллы за клипы в калькуляторе</li>
-                  <li>Выбрать награду → оформить заказ → отправить в Telegram</li>
-                </ul>
+          <div class="lg:col-span-4 relative min-h-[260px]">
+            <div class="glass rounded-3xl p-4 w-full lg:max-w-sm lg:absolute lg:right-0 lg:bottom-0 lg:-mb-10">
+              <div class="text-xs uppercase tracking-wider text-slate-600">Подсказка</div>
+              <div class="mt-1 text-sm text-slate-700 leading-relaxed">
+                Собери заказ внизу. Калькулятор находится в разделе «Правила» (кнопка).
               </div>
             </div>
           </div>
@@ -302,6 +290,9 @@
                         <span id="authLabel" class="text-slate-700">Не авторизован(а)</span>
                       </span>
                     </div>
+
+                    <a id="btnAdminForm" href="https://docs.google.com/forms/d/e/1FAIpQLSeTxeos-5hZ6Y8BBgpHkAzjadR0cgah5-UlnYe79xY_3u7Zmg/viewform" target="_blank" rel="noopener" class="hidden px-3 py-2 rounded-2xl bg-indigo-600 text-white hover:bg-indigo-700 transition shadow focus-ring">📝 Форма</a>
+
                     <div class="flex gap-2">
                       <button id="btnLogin" class="px-3 py-2 rounded-2xl bg-sky-600 text-white hover:bg-sky-700 transition shadow focus-ring">Войти через Twitch</button>
                       <button id="btnLogout" class="hidden px-3 py-2 rounded-2xl glass hover:bg-white/50 transition focus-ring">Выйти</button>
@@ -360,53 +351,86 @@
     </section>
 
     <section id="order" class="pt-10 sm:pt-14">
-      <div class="grid lg:grid-cols-12 gap-6 items-start">
-        <div class="lg:col-span-12 glass-strong glow rounded-3xl p-6 sm:p-8">
-          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">📦 Оформление заказа</h2>
-          <p class="mt-2 text-slate-700 leading-relaxed">
-            Выбери награду в разделе «Товары». Добавь комментарий (опционально) и нажми «Заказать».
-            Заявка уйдёт в Telegram.
-          </p>
+      <div class="glass-strong glow rounded-3xl p-4 sm:p-5">
+        <div class="grid lg:grid-cols-12 gap-4 items-start">
+          <!-- Left: info + live checklist -->
+          <div class="lg:col-span-8">
+            <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight">✉️ Как оформить заказ?</h2>
+            <p class="mt-2 text-slate-700 leading-relaxed text-base sm:text-lg">
+              Напишите в Telegram — одним кликом из этого сайта.
+            </p>
+            <p class="mt-2 text-slate-700 leading-relaxed text-base sm:text-lg">
+              Выбери награду в разделе «Товары». Добавь комментарий (если нужно) и нажми «Заказать».
+            </p>
 
-          <div class="mt-6 grid gap-4">
-            <div class="glass rounded-2xl p-4">
-              <div class="text-sm text-slate-600">Выбранная награда</div>
-              <div class="mt-1 flex items-center justify-between gap-3">
+            <div class="mt-3 text-sm text-slate-600">
+              После отправки заявка придёт в Telegram. Если баллов недостаточно — сайт покажет ошибку.
+            </div>
+
+          </div>
+
+          <!-- Right: order form (compact) -->
+          <div class="lg:col-span-4">
+            <div class="glass rounded-3xl p-3">
+              <div class="flex items-start justify-between gap-3">
                 <div>
-                  <div id="orderItemName" class="font-extrabold">—</div>
-                  <div id="orderItemMeta" class="text-sm text-slate-600">Выбери товар в витрине</div>
+                  <div class="text-base font-extrabold tracking-tight">📦 Заказ</div>
+                  <div class="text-xs text-slate-600" id="orderMiniHint">Заполни шаги слева</div>
                 </div>
-                <div class="text-right">
-                  <div class="text-sm text-slate-600">Стоимость</div>
-                  <div class="font-extrabold"><span id="orderItemPrice">—</span> 🪙</div>
+                <div class="w-8 h-8 rounded-2xl bg-sky-600/10 flex items-center justify-center">📨</div>
+              </div>
+
+              <!-- Locked view: only login button -->
+              <div id="orderLocked" class="mt-3">
+                <div class="glass rounded-2xl p-3">
+                  <div class="font-extrabold">Войди через Twitch</div>
+                  <div class="mt-1 text-sm text-slate-700">Чтобы оформить заказ, нужно подтянуть ник и проверить баланс.</div>
+                  <button id="btnLoginOrder" class="mt-3 w-full px-3 py-2.5 rounded-2xl bg-sky-600 text-white hover:bg-sky-700 transition shadow focus-ring">Войти через Twitch</button>
+                </div>
+              </div>
+
+              <!-- Unlocked view: full order form -->
+              <div id="orderUnlocked" class="mt-2 grid gap-2 hidden">
+                <div class="glass rounded-2xl p-2.5">
+                  <div class="text-xs text-slate-600">Выбрано</div>
+                  <div class="mt-0.5 flex items-center justify-between gap-2">
+                    <div class="min-w-0">
+                      <div id="orderItemName" class="font-extrabold truncate">—</div>
+                      <div id="orderItemMeta" class="text-xs text-slate-600 truncate">Выбери товар в витрине</div>
+                    </div>
+                    <div class="text-right shrink-0">
+                      <div class="text-[11px] text-slate-600">Цена</div>
+                      <div class="font-extrabold"><span id="orderItemPrice">—</span> 🪙</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="glass rounded-2xl p-2.5">
+                  <label class="text-xs text-slate-600" for="comment">Комментарий</label>
+                  <textarea id="comment" rows="2" class="mt-2 w-full rounded-2xl bg-white/70 border border-white/60 p-2 focus-ring" placeholder="Если нужно — уточни детали"></textarea>
+                  <div class="mt-2 text-[11px] text-slate-600" id="commentHint">Подсказка появится после выбора товара.</div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <button id="btnPlaceOrder" class="w-full px-3 py-2.5 rounded-2xl bg-sky-600 text-white hover:bg-sky-700 transition shadow focus-ring">
+                    Заказать
+                  </button>
+                  <button id="btnClearSelection" class="w-full px-3 py-2.5 rounded-2xl glass hover:bg-white/60 transition shadow focus-ring">
+                    Сбросить
+                  </button>
+                </div>
+
+                <div id="orderStatus" class="glass rounded-2xl p-2.5 hidden"></div>
+
+                <div id="orderActions" class="hidden flex flex-col gap-2">
+                  <button id="btnRetry" class="w-full px-3 py-2.5 rounded-2xl bg-white/80 hover:bg-white transition shadow focus-ring">Повторить</button>
+                  <button id="btnNewOrder" class="w-full px-3 py-2.5 rounded-2xl glass hover:bg-white/60 transition shadow focus-ring">Оформить ещё</button>
+                  <button id="btnCopyLastOrder" class="w-full px-3 py-2.5 rounded-2xl glass hover:bg-white/60 transition shadow focus-ring">Копировать текст заказа</button>
                 </div>
               </div>
             </div>
-
-            <div class="glass rounded-2xl p-4">
-              <label class="text-sm text-slate-600" for="comment">Комментарий (опционально)</label>
-              <textarea id="comment" rows="4" class="mt-2 w-full rounded-2xl bg-white/70 border border-white/60 p-3 focus-ring" placeholder="Например: ‘хочу мемы про котиков’, ‘выбери аниме из моих любимых’, ‘игра: ...’"></textarea>
-            </div>
-
-            <div class="flex flex-col sm:flex-row gap-3">
-              <button id="btnPlaceOrder" class="flex-1 px-4 py-3 rounded-2xl bg-sky-600 text-white hover:bg-sky-700 transition shadow focus-ring">
-                Заказать
-              </button>
-              <button id="btnClearSelection" class="px-4 py-3 rounded-2xl glass hover:bg-white/60 transition shadow focus-ring">
-                Сбросить выбор
-              </button>
-            </div>
-
-            <div id="orderStatus" class="glass rounded-2xl p-4 hidden"></div>
-
-            <div id="orderActions" class="hidden flex flex-col sm:flex-row gap-3">
-              <button id="btnRetry" class="px-4 py-3 rounded-2xl bg-white/80 hover:bg-white transition shadow focus-ring">Повторить</button>
-              <button id="btnNewOrder" class="px-4 py-3 rounded-2xl glass hover:bg-white/60 transition shadow focus-ring">Оформить ещё</button>
-            </div>
           </div>
         </div>
-
-
       </div>
     </section>
 
@@ -543,7 +567,7 @@
 
           <div class="glass rounded-2xl p-4">
             <div class="font-bold">Что попадёт в заказ</div>
-            <div class="mt-2 text-sm text-slate-700" id="cinemaPreview">Кино и Аниме — выбери формат</div>
+            <div class="mt-2 text-sm text-slate-700" id="cinemaPreview">Выбери формат</div>
             <div class="mt-1 text-xs text-slate-600">Можно добавить название/пожелания в комментарий на шаге заказа.</div>
           </div>
 
@@ -588,7 +612,8 @@
       auth: loadAuth(),
       balance: null,
       selected: loadSelection(),
-      placing: false
+      placing: false,
+      lastOrderText: null
     };
 
     function loadCfg(){
@@ -799,6 +824,9 @@
       $('#orderItemName').textContent = sel ? `${sel.icon} ${sel.title}` : '—';
       $('#orderItemMeta').textContent = sel ? `${sel.category}` : 'Выбери товар в витрине';
       $('#orderItemPrice').textContent = sel ? fmtCoins(sel.price) : '—';
+
+      // hints/checklist/button state
+      updateOrderAssistUI();
     }
 
     function calcScore(N){
@@ -1021,6 +1049,7 @@
       const locked = $('#balanceLocked');
       const unlocked = $('#balanceUnlocked');
       const actions = $('#balanceActions');
+      const adminBtn = $('#btnAdminForm');
 
       const card = $('#authCard');
 
@@ -1030,11 +1059,19 @@
         $('#btnLogin').classList.add('hidden');
         $('#btnLogout').classList.remove('hidden');
 
+        // Показать кнопку "Форма" только для твоего аккаунта
+        const login = (state.auth?.profile?.login || '').toLowerCase();
+        const display = (state.auth?.profile?.display_name || '').toLowerCase();
+        const isAdmin = login === 'zakslmv' || display === 'zakslmv';
+        if(adminBtn){
+          if(isAdmin) adminBtn.classList.remove('hidden');
+          else adminBtn.classList.add('hidden');
+        }
+
         locked?.classList.add('hidden');
         unlocked?.classList.remove('hidden');
         actions?.classList.remove('hidden');
 
-        // нормальная высота/отступы
         card?.classList.remove('p-4');
         card?.classList.add('p-5','sm:p-6');
       }else{
@@ -1042,15 +1079,17 @@
         label.textContent = 'Не авторизован(а)';
         $('#btnLogin').classList.remove('hidden');
         $('#btnLogout').classList.add('hidden');
+        adminBtn?.classList.add('hidden');
 
         locked?.classList.remove('hidden');
         unlocked?.classList.add('hidden');
         actions?.classList.add('hidden');
 
-        // делаем карточку компактнее, чтобы "рамка" не была длинной
         card?.classList.remove('p-5','sm:p-6');
         card?.classList.add('p-4');
       }
+
+      updateOrderAssistUI();
     }
 
     function logout(){
@@ -1070,11 +1109,13 @@
     async function fetchBalance(){
       if(!state.auth?.profile){
         toastInBalance('warn', 'Нужна авторизация', 'Сначала войди через Twitch.');
+        updateOrderAssistUI();
         return;
       }
       if(!cfgIsSet(state.cfg.BALANCE_API_URL)){
         toastInBalance('warn', 'Нужен Apps Script URL', 'Заполни BALANCE_API_URL в «Настройках».');
         openSettings();
+        updateOrderAssistUI();
         return;
       }
 
@@ -1093,10 +1134,6 @@
       const data = await resp.json().catch(()=> ({}));
       if(!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
 
-      // Поддерживаем разные форматы ответа
-      // Рекомендуемый формат: { balance: number }
-      // Также поддержим: { points: number }, { data: { balance } }, { result: { balance } }
-      // И твой кейс Google Sheets: { "Итоговые баллы": number } или { totalPoints: number }
       const balance = (
         data.balance ??
         data.points ??
@@ -1112,6 +1149,7 @@
       $('#balanceValue').textContent = fmtCoins(state.balance);
       $('#balanceHint').textContent = `Баланс привязан к нику: ${nick}`;
       toastInBalance('ok', 'Готово', `Текущий баланс: ${fmtCoins(state.balance)} 🪙`);
+      updateOrderAssistUI();
     }
 
     function getSelected(){
@@ -1132,12 +1170,97 @@
       else el.classList.add('hidden');
     }
 
+    function commentPlaceholderForSelection(sel){
+      if(!sel) return 'Если нужно — уточни детали';
+      const id = sel.id;
+      if(id === 'custom') return 'Опиши свою идею: что именно хочешь, примеры, ограничения, пожелания.';
+      if(id === 'memes-custom') return 'Укажи тематику мемов/что НЕ присылать (если есть).';
+      if(id === 'cinema-custom') return 'Напиши название или жанр/пожелания (что точно не смотреть).';
+      if(id === 'game') return 'Напиши название игры, платформу и любые ограничения.';
+      if(id === '18plus') return 'Уточни пожелания и границы (18+).';
+      if(id === 'ultimate') return 'Уточни, когда удобно и что хочешь в 12-часовом стриме.';
+      return 'Если нужно — уточни детали';
+    }
+
+    function updateOrderAssistUI(){
+      const sel = state.selected;
+      const authed = !!state.auth?.profile;
+      const chkAuth = $('#chkAuth');
+      const chkItem = $('#chkItem');
+      const chkBalance = $('#chkBalance');
+      const preview = $('#orderPreviewLine');
+      const miniHint = $('#orderMiniHint');
+      const commentHint = $('#commentHint');
+      const ta = $('#comment');
+      const btn = $('#btnPlaceOrder');
+
+      // Lock/unlock whole order form
+      const orderLocked = $('#orderLocked');
+      const orderUnlocked = $('#orderUnlocked');
+      if(orderLocked && orderUnlocked){
+        if(!authed){
+          orderLocked.classList.remove('hidden');
+          orderUnlocked.classList.add('hidden');
+        }else{
+          orderLocked.classList.add('hidden');
+          orderUnlocked.classList.remove('hidden');
+        }
+      }
+
+      // placeholders/hints
+      if(ta){
+        ta.placeholder = commentPlaceholderForSelection(sel);
+      }
+      if(commentHint){
+        commentHint.textContent = sel ? 'Подсказка: можно уточнить детали — это ускорит обработку.' : 'Подсказка появится после выбора товара.';
+      }
+
+      // checklist chips (legacy / optional)
+      if(chkAuth) chkAuth.textContent = `🔐 Авторизация: ${authed ? '✅' : '⛔'}`;
+      if(chkItem) chkItem.textContent = `🛍️ Товар: ${sel ? '✅' : '⛔'}`;
+
+      const balKnown = state.balance !== null && state.balance !== undefined && !Number.isNaN(Number(state.balance));
+      if(chkBalance){
+        if(!authed) chkBalance.textContent = '🪙 Баланс: —';
+        else if(!balKnown) chkBalance.textContent = '🪙 Баланс: ?';
+        else chkBalance.textContent = `🪙 Баланс: ${fmtCoins(state.balance)} 🪙`;
+      }
+
+      // preview (legacy / optional)
+      if(preview){
+        if(!authed) preview.textContent = 'Войди через Twitch, чтобы отправить заказ.';
+        else if(!sel) preview.textContent = 'Выбери товар в витрине — и он появится в заказе.';
+        else preview.textContent = `Будет отправлено в Telegram: @${state.auth.profile.display_name} → ${sel.title} → ${fmtCoins(sel.price)} 🪙`;
+      }
+
+      if(miniHint){
+        if(!authed) miniHint.textContent = 'Сначала войди через Twitch';
+        else if(!sel) miniHint.textContent = 'Выбери товар в витрине';
+        else miniHint.textContent = 'Готово к отправке';
+      }
+
+      // smart button (don’t override while placing)
+      if(btn && !state.placing){
+        if(!authed){
+          btn.disabled = false;
+          btn.textContent = 'Заказать';
+        }else if(!sel){
+          btn.disabled = true;
+          btn.textContent = 'Выбери товар';
+        }else{
+          btn.disabled = false;
+          btn.textContent = 'Заказать';
+        }
+      }
+    }
+
     function resetOrderUI(){
       $('#orderStatus').classList.add('hidden');
       setOrderActionsVisible(false);
       state.placing = false;
       $('#btnPlaceOrder').disabled = false;
       $('#btnPlaceOrder').textContent = 'Заказать';
+      updateOrderAssistUI();
     }
 
     function setPlacingUI(){
@@ -1150,6 +1273,7 @@
         message: 'Пожалуйста, подожди пару секунд. Это окно обновится автоматически.'
       });
       setOrderActionsVisible(false);
+      updateOrderAssistUI();
     }
 
     function buildTelegramMessage({nick, item, comment}){
@@ -1369,11 +1493,13 @@
     const CINEMA = {
       price: 750,
       options: [
-        { kind: 'Фильм', icon: '🎬', hint: 'Фильм (до 2 часов)' },
-        { kind: 'Мультфильм', icon: '🧸', hint: 'Мультфильм (до 2 часов)' },
-        { kind: 'Аниме', icon: '🍿', hint: 'Аниме (до 2 часов)' },
-        { kind: 'Сериал', icon: '📺', hint: 'Сериал (до 2 часов)' },
-        { kind: 'Телепередача', icon: '🎙️', hint: 'Телепередача (до 2 часов)' }
+        // Фильм/мультфильм — один тайтл за заказ
+        { kind: 'Фильм', icon: '🎬', hint: '1 фильм (до 2 часов)' },
+        { kind: 'Мультфильм', icon: '🧸', hint: '1 мультфильм (до 2 часов)' },
+        // Остальное — до 2 часов, но если зайдёт — смотрим дальше
+        { kind: 'Аниме', icon: '🍿', hint: 'До 2 часов • если зайдёт — смотрим фулл' },
+        { kind: 'Сериал', icon: '📺', hint: 'До 2 часов • если зайдёт — смотрим фулл' },
+        { kind: 'Телепередача', icon: '🎙️', hint: 'До 2 часов • если зайдёт — смотрим фулл' }
       ]
     };
 
@@ -1413,11 +1539,13 @@
       });
 
       if(kind){
-        preview.textContent = `Кино и Аниме — ${kind} — ${fmtCoins(CINEMA.price)} 🪙`;
+        const opt = CINEMA.options.find(o => o.kind === kind);
+        const hint = opt?.hint ? ` • ${opt.hint}` : '';
+        preview.textContent = `${kind}${hint} — ${fmtCoins(CINEMA.price)} 🪙`;
         pickBtn.disabled = false;
         toOrderBtn.disabled = false;
       }else{
-        preview.textContent = 'Кино и Аниме — выбери формат';
+        preview.textContent = 'Выбери формат';
         pickBtn.disabled = true;
         toOrderBtn.disabled = true;
       }
@@ -1427,13 +1555,16 @@
       if(!cinemaState.kind) return;
       const kind = cinemaState.kind;
 
+      const opt = CINEMA.options.find(o => o.kind === kind);
+      const hint = opt?.hint ? ` (${opt.hint})` : '';
+
       saveSelection({
         id: 'cinema-custom',
-        title: `Кино и Аниме — ${kind}`,
+        title: `${kind}${hint}`,
         category: 'Кино и Аниме',
         price: CINEMA.price,
         icon: '🎬',
-        meta: { kind }
+        meta: { kind, hint: opt?.hint || '' }
       });
       updateSelectionUI(true);
       closeCinemaModal();
@@ -1584,6 +1715,7 @@
       // Настройки/сохранение конфигов убраны из UI, обработчики не нужны.
 
       $('#btnLogin').addEventListener('click', startTwitchLogin);
+      $('#btnLoginOrder')?.addEventListener('click', startTwitchLogin);
       $('#btnLogout').addEventListener('click', logout);
 
       $('#btnRefreshBalance').addEventListener('click', () => fetchBalance().catch(e => toastInBalance('err','Ошибка', e.message || String(e))));
@@ -1601,12 +1733,21 @@
 
       // калькулятор из карточек товаров убран
 
-      $('#btnPlaceOrder').addEventListener('click', placeOrder);
+      $('#btnPlaceOrder').addEventListener('click', () => {
+        // smart action: if not authed — login
+        if(!state.auth?.profile){
+          startTwitchLogin();
+          return;
+        }
+        placeOrder();
+      });
       $('#btnRetry').addEventListener('click', placeOrder);
       $('#btnNewOrder').addEventListener('click', () => {
         resetOrderUI();
         $('#comment').value = '';
         setComment('');
+        state.lastOrderText = null;
+        updateOrderAssistUI();
         document.querySelector('#shop')?.scrollIntoView({behavior: 'smooth', block: 'start'});
       });
 
@@ -1614,6 +1755,17 @@
         saveSelection(null);
         updateSelectionUI(true);
         resetOrderUI();
+      });
+
+      $('#btnCopyLastOrder')?.addEventListener('click', async () => {
+        const text = state.lastOrderText;
+        if(!text){
+          showOrderStatus({type:'warn', title:'Нечего копировать', message:'Сначала отправь заказ — затем появится текст для копирования.'});
+          return;
+        }
+        try{ await navigator.clipboard.writeText(text); }catch{}
+        $('#btnCopyLastOrder').textContent = 'Скопировано';
+        setTimeout(()=> $('#btnCopyLastOrder').textContent = 'Копировать текст заказа', 900);
       });
 
       window.addEventListener('resize', () => {
