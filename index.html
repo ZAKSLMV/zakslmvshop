@@ -395,8 +395,8 @@
                   <div class="text-xs text-slate-600">Выбрано</div>
                   <div class="mt-0.5 flex items-center justify-between gap-2">
                     <div class="min-w-0">
-                      <div id="orderItemName" class="font-extrabold truncate">—</div>
-                      <div id="orderItemMeta" class="text-xs text-slate-600 truncate">Выбери товар в витрине</div>
+                      <div id="orderItemName" class="font-extrabold leading-snug break-words whitespace-normal">—</div>
+                      <div id="orderItemMeta" class="text-xs text-slate-600 leading-snug break-words whitespace-normal">Выбери товар в витрине</div>
                     </div>
                     <div class="text-right shrink-0">
                       <div class="text-[11px] text-slate-600">Цена</div>
@@ -1041,9 +1041,20 @@
         const profile = { id: u.id, login: u.login, display_name: u.display_name, profile_image_url: u.profile_image_url };
         saveAuth({...state.auth, profile});
         setAuthUI(true);
+
+        // Сразу показываем, что баланс загружается (без ожидания ручного клика)
+        const balUnlocked = document.querySelector('#balanceUnlocked');
+        const balLocked = document.querySelector('#balanceLocked');
+        const balActions = document.querySelector('#balanceActions');
+        if(balLocked) balLocked.classList.add('hidden');
+        if(balUnlocked) balUnlocked.classList.remove('hidden');
+        if(balActions) balActions.classList.remove('hidden');
+        const balVal = document.querySelector('#balanceValue');
+        if(balVal) balVal.textContent = '…';
+
         toastInBalance('ok', 'Авторизация успешна', `Привет, ${profile.display_name}! Баланс подтянется автоматически.`);
         // Автоподгрузка баланса после входа
-        fetchBalance().catch(()=>{});
+        await fetchBalance().catch(()=>{});
       }catch(e){
         setAuthUI(false);
         toastInBalance('err', 'Ошибка Twitch API', e.message || String(e));
