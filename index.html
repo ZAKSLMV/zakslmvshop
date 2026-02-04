@@ -1162,7 +1162,7 @@
       if(!nick) throw new Error('Ник не найден');
 
       $('#balanceValue').textContent = '…';
-      toastInBalance('info', 'Загрузка', 'Запрашиваем баланс из таблицы…');
+      toastInBalance('info', 'Загрузка', 'Запрашиваем баланс…');
 
       const url = new URL(state.cfg.BALANCE_API_URL.trim());
       url.searchParams.set('nick', nick);
