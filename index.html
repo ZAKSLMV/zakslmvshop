@@ -567,7 +567,24 @@
         </div>
 
         <div class="mt-4 glass rounded-2xl p-4">
-          <div id="topStatus" class="text-sm text-slate-700">Открой модалку — таблица загрузится автоматически.</div>
+          <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3">
+            <div class="min-w-0">
+              <div id="topStatus" class="text-sm text-slate-700">Открой модалку — таблица загрузится автоматически.</div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+              <div class="relative">
+                <input id="topSearch" type="text" class="w-full sm:w-64 rounded-2xl bg-white/70 border border-white/60 p-2.5 focus-ring text-sm" placeholder="Поиск по нику…" />
+              </div>
+              <select id="topSort" class="rounded-2xl bg-white/70 border border-white/60 p-2.5 focus-ring text-sm">
+                <option value="points" selected>Сорт: Баллы</option>
+                <option value="clips">Сорт: Клипы</option>
+                <option value="chat">Сорт: Чат</option>
+                <option value="online">Сорт: Онлайн</option>
+              </select>
+              <button id="btnShowMe" class="px-3 py-2.5 rounded-2xl glass hover:bg-white/60 transition focus-ring text-sm">Показать меня</button>
+            </div>
+          </div>
 
           <!-- Loading bar (показывается только во время загрузки) -->
           <div id="topLoading" class="mt-3 hidden">
@@ -596,33 +613,33 @@
               <tbody id="topTbody" class="text-slate-800"></tbody>
             </table>
           </div>
-        </div>
 
-        <div class="mt-4 glass rounded-2xl p-4">
-          <div class="font-extrabold">Что означают колонки</div>
-          <div class="mt-2 grid sm:grid-cols-2 lg:grid-cols-5 gap-2 text-sm text-slate-700 leading-relaxed">
-            <div class="glass rounded-2xl px-3 py-2">
-              <div class="font-semibold">Итоговые баллы</div>
-              <div class="text-slate-600 text-xs">Сумма: клипы + чат + онлайн.</div>
+          <div class="mt-4 glass rounded-2xl p-4">
+            <div class="font-extrabold">Что означают колонки</div>
+            <div class="mt-2 grid sm:grid-cols-2 lg:grid-cols-5 gap-2 text-sm text-slate-700 leading-relaxed">
+              <div class="glass rounded-2xl px-3 py-2">
+                <div class="font-semibold">Итоговые баллы</div>
+                <div class="text-slate-600 text-xs">Сумма: клипы + чат + онлайн.</div>
+              </div>
+              <div class="glass rounded-2xl px-3 py-2">
+                <div class="font-semibold">Всего клипов</div>
+                <div class="text-slate-600 text-xs">Сколько клипов всего принято.</div>
+              </div>
+              <div class="glass rounded-2xl px-3 py-2">
+                <div class="font-semibold">Чат</div>
+                <div class="text-slate-600 text-xs">+50 🪙 за каждые 100 сообщений (команды с ! не считаются).</div>
+              </div>
+              <div class="glass rounded-2xl px-3 py-2">
+                <div class="font-semibold">Онлайн</div>
+                <div class="text-slate-600 text-xs">+5 🪙 за каждые 10 минут активности, когда стрим онлайн.</div>
+              </div>
+              <div class="glass rounded-2xl px-3 py-2">
+                <div class="font-semibold">Макс. бонус</div>
+                <div class="text-slate-600 text-xs">Самый большой % бонуса по клипам.</div>
+              </div>
             </div>
-            <div class="glass rounded-2xl px-3 py-2">
-              <div class="font-semibold">Всего клипов</div>
-              <div class="text-slate-600 text-xs">Сколько клипов всего принято.</div>
-            </div>
-            <div class="glass rounded-2xl px-3 py-2">
-              <div class="font-semibold">Чат</div>
-              <div class="text-slate-600 text-xs">+50 🪙 за каждые 100 сообщений (команды с ! не считаются).</div>
-            </div>
-            <div class="glass rounded-2xl px-3 py-2">
-              <div class="font-semibold">Онлайн</div>
-              <div class="text-slate-600 text-xs">+5 🪙 за каждые 10 минут активности, когда стрим онлайн.</div>
-            </div>
-            <div class="glass rounded-2xl px-3 py-2">
-              <div class="font-semibold">Макс. бонус</div>
-              <div class="text-slate-600 text-xs">Самый большой % бонуса по клипам.</div>
-            </div>
+            <div class="mt-3 text-xs text-slate-600">Если видишь нули в «Чат/Онлайн», значит ещё нет начислений активности или они не были записаны ботом.</div>
           </div>
-          <div class="mt-3 text-xs text-slate-600">Если видишь нули в «Чат/Онлайн», значит ещё нет начислений активности или они не были записаны ботом.</div>
         </div>
       </div>
     </div>
@@ -886,7 +903,7 @@
 
     function affordState(price){
       const p = Number(price) || 0;
-      if(!state.auth?.profile) return { kind: 'locked', text: 'Войди, чтобы проверить баланс', dot: 'bg-slate-300' };
+      if(!state.auth?.profile) return { kind: 'locked', text: 'Войди, чтобы увидеть хватает ли баллов', dot: 'bg-slate-300' };
       if(!knownBalance()) return { kind: 'unknown', text: 'Баланс не загружен', dot: 'bg-slate-300' };
       if(p <= 0) return { kind: 'free', text: 'Можно оформить (0 🪙)', dot: 'bg-emerald-500' };
       const b = Number(state.balance) || 0;
@@ -956,7 +973,91 @@
       return Number.isFinite(n) ? n : 0;
     }
 
+    const topState = {
+      rows: [],
+      filtered: [],
+      sort: 'points',
+      query: ''
+    };
+
     let topLoadingInFlight = false;
+
+    function normalizeTopRows(rows){
+      return (rows || []).map(r => {
+        const nick = String(pickField(r, ['Никнейм','Ник','nick','Nick','name','Name']) ?? '').trim();
+        const clips = toNum(pickField(r, ['Всего клипов','Клипы','Клипов','clips','Clips']));
+        const points = toNum(pickField(r, ['Итоговые баллы','Баллы','Баллы всего','points','Points','total','Total']));
+        const chatPts = toNum(pickField(r, ['Баллы чата','Чат','chat','chatPts','Chat points']));
+        const watchPts = toNum(pickField(r, ['Баллы онлайна','Онлайн','online','watch','watchPts','Watch points']));
+        const maxBonus = pickField(r, ['Макс. бонус (%)','Макс. бонус','Бонус','bonus','Bonus','maxBonus']);
+        return { nick, points, clips, chatPts, watchPts, maxBonusRaw: maxBonus };
+      }).filter(x => x.nick);
+    }
+
+    function currentNickKey(){
+      const p = state.auth?.profile;
+      const a = String(p?.display_name || p?.login || '').trim().toLowerCase();
+      return a;
+    }
+
+    function applyTopFilterAndSort(){
+      const q = String(topState.query || '').trim().toLowerCase();
+      const sort = topState.sort || 'points';
+
+      let arr = topState.rows.slice();
+      if(q){
+        arr = arr.filter(r => r.nick.toLowerCase().includes(q));
+      }
+
+      const cmp = {
+        points: (a,b) => (b.points - a.points) || (b.clips - a.clips) || a.nick.localeCompare(b.nick, 'ru'),
+        clips: (a,b) => (b.clips - a.clips) || (b.points - a.points) || a.nick.localeCompare(b.nick, 'ru'),
+        chat: (a,b) => (b.chatPts - a.chatPts) || (b.points - a.points) || a.nick.localeCompare(b.nick, 'ru'),
+        online: (a,b) => (b.watchPts - a.watchPts) || (b.points - a.points) || a.nick.localeCompare(b.nick, 'ru')
+      }[sort] || ((a,b)=> (b.points-a.points));
+
+      arr.sort(cmp);
+      topState.filtered = arr;
+    }
+
+    function renderTopTable(){
+      const status = $('#topStatus');
+      const table = $('#topTable');
+      const tbody = $('#topTbody');
+      if(!status || !table || !tbody) return;
+
+      applyTopFilterAndSort();
+
+      const arr = topState.filtered;
+      if(!arr.length){
+        table.hidden = true;
+        status.textContent = topState.rows.length
+          ? 'Ничего не найдено по фильтру.'
+          : 'Данных пока нет.';
+        return;
+      }
+
+      const me = currentNickKey();
+
+      tbody.innerHTML = arr.slice(0, 50).map((r, i) => {
+        const maxB = (r.maxBonusRaw === null || r.maxBonusRaw === undefined) ? '' : String(r.maxBonusRaw);
+        const isMe = me && r.nick.toLowerCase() === me;
+        return `
+          <tr class="border-t border-white/40 ${isMe ? 'bg-sky-600/10' : ''}" data-nick="${escapeHtml(r.nick.toLowerCase())}">
+            <td class="py-2 pr-3 text-slate-500">${i+1}</td>
+            <td class="py-2 pr-3 font-semibold break-words">${escapeHtml(r.nick)}${isMe ? ' <span class="text-xs text-sky-700 font-bold">(ты)</span>' : ''}</td>
+            <td class="py-2 pr-3 text-right font-extrabold">${fmtCoins(r.points)}</td>
+            <td class="py-2 pr-3 text-right">${fmtCoins(r.clips)}</td>
+            <td class="py-2 pr-3 text-right">${fmtCoins(r.chatPts)}</td>
+            <td class="py-2 pr-3 text-right">${fmtCoins(r.watchPts)}</td>
+            <td class="py-2 pr-3 text-right text-slate-700">${escapeHtml(maxB)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      status.textContent = `Показаны топ-50 (найдено строк: ${arr.length}).`;
+      table.hidden = false;
+    }
 
     async function loadTop(){
       const status = $('#topStatus');
@@ -966,7 +1067,7 @@
       const loading = $('#topLoading');
 
       if(!status || !table || !tbody || !btn) return;
-      if(topLoadingInFlight) return; // защита от двойного клика/двойного открытия
+      if(topLoadingInFlight) return;
 
       if(!cfgIsSet(state.cfg.BALANCE_API_URL)){
         status.textContent = 'Не задан BALANCE_API_URL. Таблица не может загрузиться.';
@@ -983,7 +1084,6 @@
       table.hidden = true;
       tbody.innerHTML = '';
 
-      // Таймаут, чтобы не висело «вечно» если Apps Script не отвечает
       const ctrl = new AbortController();
       const tmr = setTimeout(() => ctrl.abort(), 15000);
 
@@ -997,54 +1097,24 @@
         if(data.ok === false) throw new Error(data.error || 'ok=false');
 
         const rows = Array.isArray(data.data) ? data.data : [];
-        if(!rows.length){
+        topState.rows = normalizeTopRows(rows);
+
+        if(!topState.rows.length){
           status.textContent = 'Данных пока нет (таблица пустая или Apps Script не вернул строки).';
           table.hidden = true;
           return;
         }
 
-        // Нормализуем строки
-        const normalized = rows.map(r => {
-          const nick = String(pickField(r, ['Никнейм','Ник','nick','Nick','name','Name']) ?? '').trim();
-          const clips = toNum(pickField(r, ['Всего клипов','Клипы','Клипов','clips','Clips']));
-          const points = toNum(pickField(r, ['Итоговые баллы','Баллы','Баллы всего','points','Points','total','Total']));
-
-          const chatPts = toNum(pickField(r, ['Баллы чата','Чат','chat','chatPts','Chat points']));
-          const watchPts = toNum(pickField(r, ['Баллы онлайна','Онлайн','online','watch','watchPts','Watch points']));
-
-          const maxBonus = pickField(r, ['Макс. бонус (%)','Макс. бонус','Бонус','bonus','Bonus','maxBonus']);
-          return { nick, points, clips, chatPts, watchPts, maxBonusRaw: maxBonus };
-        }).filter(x => x.nick);
-
-        normalized.sort((a,b) => (b.points - a.points) || (b.clips - a.clips) || a.nick.localeCompare(b.nick, 'ru'));
-
-        const html = normalized.slice(0, 50).map((r, i) => {
-          const maxB = (r.maxBonusRaw === null || r.maxBonusRaw === undefined) ? '' : String(r.maxBonusRaw);
-          return `
-            <tr class="border-t border-white/40">
-              <td class="py-2 pr-3 text-slate-500">${i+1}</td>
-              <td class="py-2 pr-3 font-semibold break-words">${escapeHtml(r.nick)}</td>
-              <td class="py-2 pr-3 text-right font-extrabold">${fmtCoins(r.points)}</td>
-              <td class="py-2 pr-3 text-right">${fmtCoins(r.clips)}</td>
-              <td class="py-2 pr-3 text-right">${fmtCoins(r.chatPts)}</td>
-              <td class="py-2 pr-3 text-right">${fmtCoins(r.watchPts)}</td>
-              <td class="py-2 pr-3 text-right text-slate-700">${escapeHtml(maxB)}</td>
-            </tr>
-          `;
-        }).join('');
-
-        // чуть более плавная отрисовка
         await new Promise(requestAnimationFrame);
-        tbody.innerHTML = html;
-
-        status.textContent = `Показаны топ-50 (всего строк: ${normalized.length}).`;
-        table.hidden = false;
+        renderTopTable();
       }catch(e){
         const msg = (e && (e.name === 'AbortError'))
           ? 'Таймаут: Apps Script долго отвечает. Попробуй ещё раз.'
           : (e.message || String(e));
         status.textContent = `Ошибка загрузки: ${msg}`;
         table.hidden = true;
+        topState.rows = [];
+        topState.filtered = [];
       }finally{
         clearTimeout(tmr);
         topLoadingInFlight = false;
@@ -2079,6 +2149,29 @@
       // Топ и статистика (модалка)
       $('#btnOpenTop')?.addEventListener('click', openTop);
       $('#btnLoadTop')?.addEventListener('click', () => loadTop());
+
+      // Топ: поиск/сортировка/показать меня
+      $('#topSearch')?.addEventListener('input', (e) => {
+        topState.query = e.target.value || '';
+        renderTopTable();
+      });
+      $('#topSort')?.addEventListener('change', (e) => {
+        topState.sort = e.target.value || 'points';
+        renderTopTable();
+      });
+      $('#btnShowMe')?.addEventListener('click', () => {
+        const me = currentNickKey();
+        if(!me){
+          $('#topStatus').textContent = 'Сначала войди через Twitch, чтобы подсветить твою строку.';
+          return;
+        }
+        const row = $(`#topTbody tr[data-nick="${CSS.escape(me)}"]`);
+        if(row){
+          row.scrollIntoView({behavior:'smooth', block:'center'});
+        }else{
+          $('#topStatus').textContent = 'Твоей строки нет в текущем списке (возможно, ты не попал(а) в топ-50 или фильтр мешает).';
+        }
+      });
 
       window.addEventListener('resize', () => {
         setupStars();
