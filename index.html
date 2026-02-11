@@ -347,6 +347,35 @@
                       <div class="text-sm text-slate-600">Твой баланс</div>
                       <div class="mt-1 text-3xl font-extrabold tracking-tight"><span id="balanceValue">-</span> <span class="text-xl">🪙</span></div>
                       <div id="balanceHint" class="mt-2 text-sm text-slate-600">Нажми «Обновить баланс».</div>
+
+                      <div id="myStats" class="mt-4 glass rounded-2xl p-4 hidden">
+                        <div class="flex items-start justify-between gap-3">
+                          <div>
+                            <div class="text-xs uppercase tracking-wider text-slate-600">Моя статистика</div>
+                            <div class="mt-1 font-extrabold">Детализация баллов</div>
+                          </div>
+                          <button id="btnRefreshMyStats" class="px-3 py-2 rounded-2xl bg-white/80 hover:bg-white transition shadow focus-ring text-sm">Обновить</button>
+                        </div>
+                        <div class="mt-3 grid grid-cols-2 gap-2 text-sm">
+                          <div class="glass rounded-2xl p-3">
+                            <div class="text-xs text-slate-600">Клипы</div>
+                            <div class="mt-0.5 font-extrabold" id="myClips">—</div>
+                          </div>
+                          <div class="glass rounded-2xl p-3">
+                            <div class="text-xs text-slate-600">Макс. бонус</div>
+                            <div class="mt-0.5 font-extrabold" id="myMaxBonus">—</div>
+                          </div>
+                          <div class="glass rounded-2xl p-3">
+                            <div class="text-xs text-slate-600">Чат</div>
+                            <div class="mt-0.5 font-extrabold" id="myChat">—</div>
+                          </div>
+                          <div class="glass rounded-2xl p-3">
+                            <div class="text-xs text-slate-600">Онлайн</div>
+                            <div class="mt-0.5 font-extrabold" id="myOnline">—</div>
+                          </div>
+                        </div>
+                        <div class="mt-2 text-xs text-slate-600" id="myStatsHint">Нажми «Обновить», чтобы подтянуть клипы/чат/онлайн.</div>
+                      </div>
                     </div>
                   </div>
 
@@ -1118,6 +1147,74 @@
       }
     }
 
+    // ====== MY STATS (детализация для текущего пользователя) ======
+    function setMyStatsVisible(v){
+      const el = $('#myStats');
+      if(!el) return;
+      if(v) el.classList.remove('hidden');
+      else el.classList.add('hidden');
+    }
+
+    function setMyStatsStatus(text){
+      const el = $('#myStatsHint');
+      if(el) el.textContent = text || '';
+    }
+
+    async function loadMyStats(){
+      if(!state.auth?.profile){
+        setMyStatsVisible(false);
+        return;
+      }
+      if(!cfgIsSet(state.cfg.BALANCE_API_URL)){
+        setMyStatsVisible(false);
+        return;
+      }
+
+      setMyStatsVisible(true);
+      setMyStatsStatus('Загрузка…');
+
+      const me = currentNickKey();
+      if(!me){
+        setMyStatsStatus('Не удалось определить ник.');
+        return;
+      }
+
+      const ctrl = new AbortController();
+      const tmr = setTimeout(() => ctrl.abort(), 15000);
+      try{
+        const url = new URL(state.cfg.BALANCE_API_URL.trim());
+        url.searchParams.set('action', 'getAllData');
+
+        const resp = await fetch(url.toString(), { method:'GET', signal: ctrl.signal, cache:'no-store' });
+        const data = await resp.json().catch(()=> ({}));
+        if(!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+        if(data && data.ok === false) throw new Error(data.error || 'ok=false');
+
+        const rows = normalizeTopRows(Array.isArray(data.data) ? data.data : []);
+        const row = rows.find(r => r.nick.toLowerCase() === me);
+        if(!row){
+          $('#myClips').textContent = '—';
+          $('#myChat').textContent = '—';
+          $('#myOnline').textContent = '—';
+          $('#myMaxBonus').textContent = '—';
+          setMyStatsStatus('Твоей строки пока нет в таблице (возможно, ещё нет клипов/начислений).');
+          return;
+        }
+
+        $('#myClips').textContent = fmtCoins(row.clips);
+        $('#myChat').textContent = fmtCoins(row.chatPts);
+        $('#myOnline').textContent = fmtCoins(row.watchPts);
+        $('#myMaxBonus').textContent = (row.maxBonusRaw === null || row.maxBonusRaw === undefined || String(row.maxBonusRaw).trim()==='') ? '—' : String(row.maxBonusRaw);
+
+        setMyStatsStatus('Данные обновлены.');
+      }catch(e){
+        const msg = (e && e.name === 'AbortError') ? 'Таймаут. Попробуй ещё раз.' : (e.message || String(e));
+        setMyStatsStatus(`Ошибка: ${msg}`);
+      }finally{
+        clearTimeout(tmr);
+      }
+    }
+
     // Группы товаров: объединяем однотипные позиции в одну карточку категории
     // Компактная витрина без категорий: один товар = одна карточка
     // (Если нужно снова объединять похожие позиции — вернём группы)
@@ -1441,6 +1538,8 @@
         toastInBalance('ok', 'Авторизация успешна', `Привет, ${profile.display_name}! Баланс подтянется автоматически.`);
         // Автоподгрузка баланса после входа
         await fetchBalance().catch(()=>{});
+        // Подтянем детализацию (клипы/чат/онлайн)
+        loadMyStats().catch(()=>{});
       }catch(e){
         setAuthUI(false);
         toastInBalance('err', 'Ошибка Twitch API', e.message || String(e));
@@ -1493,6 +1592,13 @@
         card?.classList.add('p-4');
       }
 
+      // Моя статистика показывается только после авторизации
+      setMyStatsVisible(!!(isAuthed && state.auth?.profile));
+      if(isAuthed && state.auth?.profile){
+        // не мешаем — просто пытаемся подтянуть
+        loadMyStats().catch(()=>{});
+      }
+
       updateOrderAssistUI();
       updateAffordUI();
       updateShopBalanceUI();
@@ -1538,9 +1644,14 @@
       url.searchParams.set('nick', nick);
       if(login) url.searchParams.set('login', login);
 
-      const resp = await fetch(url.toString(), { method: 'GET' });
+      const ctrl = new AbortController();
+      const tmr = setTimeout(() => ctrl.abort(), 12000);
+
+      const resp = await fetch(url.toString(), { method: 'GET', signal: ctrl.signal, cache: 'no-store' });
       const data = await resp.json().catch(()=> ({}));
+      clearTimeout(tmr);
       if(!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+      if(data && data.ok === false) throw new Error(data.error || 'ok=false');
 
       const balance = (
         data.balance ??
@@ -2079,6 +2190,7 @@
       $('#btnLogout').addEventListener('click', logout);
 
       $('#btnRefreshBalance').addEventListener('click', () => fetchBalance().catch(e => toastInBalance('err','Ошибка', e.message || String(e))));
+      $('#btnRefreshMyStats')?.addEventListener('click', () => loadMyStats().catch(e => toastInBalance('err','Ошибка', e.message || String(e))));
 
       const comment = $('#comment');
       comment.value = getComment();
@@ -2173,6 +2285,7 @@
       if(state.auth?.profile){
         $('#balanceHint').textContent = `Авторизован(а) как @${state.auth.profile.display_name}. Баланс обновится автоматически.`;
         fetchBalance().catch(()=>{});
+        loadMyStats().catch(()=>{});
       }
 
     }
