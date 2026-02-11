@@ -741,15 +741,9 @@
   <script>
     const DEFAULT_CFG = {
       // ВАЖНО: хранить токены на клиенте небезопасно.
-      // Этот режим — "как было":
-      // 1) заказ отправляется напрямую в Telegram
-      // 2) списание баллов идёт через Apps Script doPost(action:'spend') с токеном
-      // Более рабоче, но менее безопасно (токены видны в браузере).
-      TELEGRAM_BOT_TOKEN: '8269159854:AAHoLGrTjm79AMK2Ma3H5j614BdWNJ4Oe-Q',
-      TELEGRAM_CHAT_IDS: '5102684150',
-      SPEND_TOKEN: 'xK9mN2pQ7vR8zW3bF6',
+      // Теперь заказ отправляется через Apps Script (action=order),
+      // а Telegram/списание выполняются на стороне Apps Script.
       BALANCE_API_URL: 'https://script.google.com/macros/s/AKfycbwm_z6obO9t_f3QAjjwNEdmtXSrfj3kAWiHnFC80mJkmw1EPlF90kED5Ys1vzp0u6oXhQ/exec',
-      ORDER_API_URL: '',
       TWITCH_CLIENT_ID: 'njg6lnlpkp9h8s3pdkwzl7byhju06n',
       TWITCH_REDIRECT_URI: 'https://zakslmv.github.io/zakslmvshop/index.html'
     };
@@ -1687,7 +1681,7 @@
       updateOrderAssistUI();
     }
 
-    function buildTelegramMessage({nick, item, comment}){
+    function buildOrderTextLocal({nick, item, comment}){
       const lines = [
         '📦 Новый заказ:',
         `Товар: ${item.title}`,
@@ -1696,6 +1690,35 @@
         `Стоимость: ${fmtCoins(item.price)} 🪙`
       ];
       return lines.join('\n');
+    }
+
+    async function postOrderToAppsScript({nick, login, display_name, item, comment, price}){
+      if(!cfgIsSet(state.cfg.BALANCE_API_URL)) throw new Error('Не задан BALANCE_API_URL');
+
+      const body = new URLSearchParams();
+      body.set('payload', JSON.stringify({
+        action: 'order',
+        nick,
+        login,
+        display_name,
+        item,
+        comment,
+        price: Number(price) || 0,
+        ts: Date.now()
+      }));
+
+      const resp = await fetch(state.cfg.BALANCE_API_URL.trim(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+        body
+      });
+
+      const txt = await resp.text().catch(()=> '');
+      let data = {};
+      try{ data = txt ? JSON.parse(txt) : {}; }catch{ data = {}; }
+      if(!resp.ok) throw new Error(txt || `HTTP ${resp.status}`);
+      if(data && data.ok === false) throw new Error(data.error || data.reason || 'order: ok=false');
+      return data;
     }
 
     async function placeOrder(){
@@ -1714,102 +1737,44 @@
         return;
       }
 
+      if(!cfgIsSet(state.cfg.BALANCE_API_URL)){
+        showOrderStatus({type:'err', title:'Ошибка настроек', message:'Не задан BALANCE_API_URL. Нельзя отправить заказ.'});
+        setOrderActionsVisible(true);
+        return;
+      }
+
       const nick = state.auth.profile.display_name || state.auth.profile.login;
+      const login = state.auth.profile.login;
+      const display_name = state.auth.profile.display_name;
       const comment = ($('#comment').value || '').trim();
 
       try{
         setPlacingUI();
 
-        await fetchBalance();
+        // Локальный “текст заказа” — для истории и кнопки «Копировать»
+        const localText = buildOrderTextLocal({nick, item, comment});
+        state.lastOrderText = localText;
 
-        if(state.balance === null || state.balance === undefined || Number.isNaN(Number(state.balance))) throw new Error('Баланс не определён');
-        if(Number(state.balance) < Number(item.price)){
-          showOrderStatus({
-            type:'err',
-            title:'Недостаточно баллов',
-            message:`Нужно ${fmtCoins(item.price)} 🪙, а у тебя ${fmtCoins(state.balance)} 🪙. Заказ не отправлен.`
-          });
-          setOrderActionsVisible(true);
-          $('#btnPlaceOrder').disabled = false;
-          $('#btnPlaceOrder').textContent = 'Заказать';
-          state.placing = false;
-          return;
-        }
+        // Отправляем заказ на Apps Script: он сам проверит баланс, спишет баллы и отправит в Telegram
+        const res = await postOrderToAppsScript({nick, login, display_name, item, comment, price: item.price});
 
-        const message = buildTelegramMessage({nick, item, comment});
-        state.lastOrderText = message;
-
-        if(cfgIsSet(state.cfg.TELEGRAM_BOT_TOKEN) && cfgIsSet(state.cfg.TELEGRAM_CHAT_IDS)){
-          const ids = state.cfg.TELEGRAM_CHAT_IDS.split(',').map(s=>s.trim()).filter(Boolean);
-          const token = state.cfg.TELEGRAM_BOT_TOKEN.trim();
-          if(!ids.length) throw new Error('TELEGRAM_CHAT_IDS пуст');
-
-          for(const chatId of ids){
-            const url = `https://api.telegram.org/bot${token}/sendMessage`;
-            const resp = await fetch(url, {
-              method: 'POST',
-              headers: {'Content-Type':'application/json'},
-              body: JSON.stringify({ chat_id: chatId, text: message })
-            });
-            const data = await resp.json().catch(()=> ({}));
-            if(!resp.ok || data.ok === false){
-              const hint = (
-                (data.description || '').includes('chat not found')
-                  ? 'Telegram: chat not found. Проверь CHAT_ID: это должен быть ID чата/группы, куда бот уже добавлен. Для группы обычно нужен отрицательный id (например -100...). Также убедись, что ты написал(а) боту /start (если это личка) или добавил(а) бота в группу.'
-                  : ''
-              );
-              throw new Error((data.description || `Telegram error: HTTP ${resp.status}`) + (hint ? `\n\n${hint}` : ''));
-            }
-          }
-
-          // Списание (если настроено)
-          if(cfgIsSet(state.cfg.BALANCE_API_URL) && cfgIsSet(state.cfg.SPEND_TOKEN) && Number(item.price) > 0){
-            const body = new URLSearchParams();
-            body.set('payload', JSON.stringify({
-              action: 'spend',
-              token: state.cfg.SPEND_TOKEN || '',
-              nick,
-              amount: Number(item.price) || 0,
-              item: item.title,
-              comment
-            }));
-
-            const resp = await fetch(state.cfg.BALANCE_API_URL.trim(), {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-              body
-            });
-
-            const txt = await resp.text().catch(()=> '');
-            let data = {};
-            try{
-              const cleaned = (txt || '').trim();
-              if(cleaned.startsWith('payload=')) throw new Error('Non-JSON response');
-              data = cleaned ? JSON.parse(cleaned) : {};
-            }catch{
-              data = {};
-            }
-
-            if(!resp.ok){
-              throw new Error(txt || `SPEND: HTTP ${resp.status}`);
-            }
-            if(data && data.ok === false){
-              throw new Error(data.error || data.reason || txt || 'SPEND: ok=false');
-            }
-
-            if(data.after !== undefined && data.after !== null){
-              state.balance = Number(data.after);
-              $('#balanceValue').textContent = fmtCoins(state.balance);
-            }
-          }
-        } else {
-          throw new Error('Не заполнены Telegram параметры.');
+        // Обновим баланс на клиенте, если сервер его вернул
+        const newBal = (res.balance ?? res.after ?? res.points_after);
+        if(newBal !== undefined && newBal !== null && !Number.isNaN(Number(newBal))){
+          state.balance = Number(newBal);
+          $('#balanceValue').textContent = fmtCoins(state.balance);
+          updateAffordUI();
+          updateShopBalanceUI();
+          renderProducts();
+        }else{
+          // На всякий случай подтянем баланс заново
+          fetchBalance().catch(()=>{});
         }
 
         showOrderStatus({
           type:'ok',
           title:'Заказ отправлен',
-          message:`Готово! Заявка отправлена`
+          message:'Готово! Заявка отправлена.'
         });
 
         // история (локально)
@@ -1818,7 +1783,7 @@
           nick,
           title: item.title,
           price: Number(item.price) || 0,
-          text: message
+          text: localText
         });
 
         setOrderActionsVisible(true);
@@ -1826,7 +1791,10 @@
         $('#btnPlaceOrder').textContent = 'Заказать';
         state.placing = false;
       }catch(e){
-        showOrderStatus({ type:'err', title:'Ошибка', message: e.message || String(e) });
+        // Дружелюбные ошибки недостатка баллов
+        const msg = e.message || String(e);
+        const isNoFunds = /Недостаточно баллов/i.test(msg);
+        showOrderStatus({ type: isNoFunds ? 'err' : 'err', title: isNoFunds ? 'Недостаточно баллов' : 'Ошибка', message: msg });
         setOrderActionsVisible(true);
         $('#btnPlaceOrder').disabled = false;
         $('#btnPlaceOrder').textContent = 'Заказать';
