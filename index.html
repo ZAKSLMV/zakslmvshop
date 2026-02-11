@@ -1692,12 +1692,19 @@
       return lines.join('\n');
     }
 
-    async function postOrderToAppsScript({nick, login, display_name, item, comment, price}){
+    function makeRequestId(){
+      // Уникальный идентификатор, чтобы Apps Script мог защититься от повторов
+      // Формат: 1700000000000_ab12Cd...
+      return `${Date.now()}_${randString(14)}`;
+    }
+
+    async function postOrderToAppsScript({nick, login, display_name, item, comment, price, requestId}){
       if(!cfgIsSet(state.cfg.BALANCE_API_URL)) throw new Error('Не задан BALANCE_API_URL');
 
       const body = new URLSearchParams();
       body.set('payload', JSON.stringify({
         action: 'order',
+        requestId: requestId || null,
         nick,
         login,
         display_name,
@@ -1756,7 +1763,8 @@
         state.lastOrderText = localText;
 
         // Отправляем заказ на Apps Script: он сам проверит баланс, спишет баллы и отправит в Telegram
-        const res = await postOrderToAppsScript({nick, login, display_name, item, comment, price: item.price});
+        const requestId = makeRequestId();
+        const res = await postOrderToAppsScript({nick, login, display_name, item, comment, price: item.price, requestId});
 
         // Обновим баланс на клиенте, если сервер его вернул
         const newBal = (res.balance ?? res.after ?? res.points_after);
