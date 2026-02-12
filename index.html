@@ -855,9 +855,9 @@
 
     function fmtCoins(x){
       if(x === null || x === undefined || Number.isNaN(Number(x))) return '-';
+      // По просьбе: показываем только целые монеты (без копеек)
       const n = Number(x);
-      const isInt = Math.abs(n - Math.round(n)) < 1e-9;
-      return (isInt ? String(Math.round(n)) : n.toFixed(2).replace(/\.00$/, ''));
+      return String(Math.floor(n));
     }
 
     function loadHistory(){
@@ -1627,8 +1627,7 @@
         return;
       }
       if(!cfgIsSet(state.cfg.BALANCE_API_URL)){
-        toastInBalance('warn', 'Нужен Apps Script URL', 'Заполни BALANCE_API_URL в «Настройках».');
-        openSettings();
+        toastInBalance('warn', 'Нужен Apps Script URL', 'Не задан BALANCE_API_URL.');
         updateOrderAssistUI();
         return;
       }
@@ -1638,7 +1637,7 @@
       if(!nick) throw new Error('Ник не найден');
 
       $('#balanceValue').textContent = '…';
-      toastInBalance('info', 'Загрузка', 'Запрашиваем баланс..');
+      toastInBalance('info', 'Загрузка', 'Запрашиваем баланс…');
 
       const url = new URL(state.cfg.BALANCE_API_URL.trim());
       url.searchParams.set('nick', nick);
@@ -1647,9 +1646,15 @@
       const ctrl = new AbortController();
       const tmr = setTimeout(() => ctrl.abort(), 12000);
 
-      const resp = await fetch(url.toString(), { method: 'GET', signal: ctrl.signal, cache: 'no-store' });
-      const data = await resp.json().catch(()=> ({}));
-      clearTimeout(tmr);
+      let resp;
+      let data = {};
+      try{
+        resp = await fetch(url.toString(), { method: 'GET', signal: ctrl.signal, cache: 'no-store' });
+        data = await resp.json().catch(()=> ({}));
+      }finally{
+        clearTimeout(tmr);
+      }
+
       if(!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
       if(data && data.ok === false) throw new Error(data.error || 'ok=false');
 
@@ -1663,14 +1668,16 @@
         (data.result && (data.result.balance ?? data.result.points))
       );
 
-      // Если пользователя нет в таблице или API вернул неожиданный формат — считаем, что баланс = 0
-      // и показываем дружелюбное сообщение вместо технической ошибки.
+      // Новый серверный режим: Apps Script может вернуть баланс из активности даже если нет клипов.
       if(balance === undefined || balance === null){
         state.balance = 0;
         $('#balanceValue').textContent = '0';
         $('#balanceHint').textContent = `Баланс привязан к нику: ${nick}`;
-        toastInBalance('warn', 'Баланс', 'Извините, у вас 0 баллов');
+        toastInBalance('warn', 'Баланс', 'Пока 0 баллов (нет клипов/активности).');
         updateOrderAssistUI();
+        updateAffordUI();
+        updateShopBalanceUI();
+        renderProducts();
         return;
       }
 
@@ -1679,14 +1686,13 @@
       $('#balanceHint').textContent = `Баланс привязан к нику: ${nick}`;
 
       if(state.balance <= 0){
-        toastInBalance('warn', 'Баланс', 'Извините, у вас 0 баллов');
+        toastInBalance('warn', 'Баланс', 'Пока 0 баллов.');
       }else{
         toastInBalance('ok', 'Готово', `Текущий баланс: ${fmtCoins(state.balance)} 🪙`);
       }
       updateOrderAssistUI();
       updateAffordUI();
       updateShopBalanceUI();
-      // обновим витрину (чипы "хватает/не хватает") только если она на экране
       renderProducts();
     }
 
@@ -1889,6 +1895,8 @@
           // На всякий случай подтянем баланс заново
           fetchBalance().catch(()=>{});
         }
+
+        // ВАЖНО: заказ теперь списывается на сервере (Apps Script), поэтому баланс в таблице точно изменится.
 
         showOrderStatus({
           type:'ok',
